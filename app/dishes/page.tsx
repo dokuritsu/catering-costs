@@ -1,15 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react';
+import type { Dish, UnitType } from "@/lib/types";
 
 const STORAGE_KEY = "catering_dishes_v2";
 
 export default function Dishes(){
     
     const [dishName, setDishName] = useState("");
-    const [unitType, setUnitType] = useState("plate");
+    const [unitType, setUnitType] = useState<UnitType>("plate");
     const [baselineCostPerUnit, setbaselineCostPerUnit] = useState("");
-    const [dishes, setDishes] = useState([]);
+    const [dishes, setDishes] = useState<Dish[]>([]);
     const [loaded, setLoaded] = useState(false);
     const listDishes = dishes.map(dish => 
         <li key={dish.dishName}>
@@ -47,14 +48,6 @@ export default function Dishes(){
             setbaselineCostPerUnit("");
         }
     }
-    
-    function handleDishNameChange(e){
-        setDishName(e.target.value);
-    }
-
-    function handleBaselineCostChange(e){
-        setbaselineCostPerUnit(e.target.value);
-    }
 
     return(
     <>
@@ -65,7 +58,7 @@ export default function Dishes(){
             Input Dish Name:{' '}
             <input
                 value={dishName}
-                onChange={handleDishNameChange}
+                onChange={e => setDishName(e.target.value)}
             />
         </label> 
         </p>
@@ -73,7 +66,7 @@ export default function Dishes(){
         <p>
             <label>
                 Select Unit Option {' '}
-                <select name="selectedUnit" value={unitType} onChange={e => setUnitType(e.target.value)}>
+                <select name="selectedUnit" value={unitType} onChange={e => setUnitType(e.target.value as UnitType)}>
                     <option value="tray">Tray</option>
                     <option value="plate">Plate</option>
                 </select>
@@ -86,7 +79,7 @@ export default function Dishes(){
                 <input
                     type="number"
                     value={baselineCostPerUnit}
-                    onChange={handleBaselineCostChange}
+                    onChange={e => setbaselineCostPerUnit(e.target.value)}
                 />
             </label>
         </p>

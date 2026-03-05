@@ -44,7 +44,7 @@ export default function Quote(){
     useEffect(() => {
         const raw = localStorage.getItem(STORAGE_KEY);
         if(raw){
-            const parsed = JSON.parse(raw);
+            const parsed = JSON.parse(raw) as Dish[];
             setDishes(parsed);
             if(parsed.length > 0){
                 setSelectedDishName(parsed[0].dishName);
