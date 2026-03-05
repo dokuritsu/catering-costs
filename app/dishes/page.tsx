@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-const STORAGE_KEY = "catering_dishes_v1";
+const STORAGE_KEY = "catering_dishes_v2";
 
 export default function Dishes(){
     
@@ -11,6 +11,15 @@ export default function Dishes(){
     const [baselineCostPerUnit, setbaselineCostPerUnit] = useState("");
     const [dishes, setDishes] = useState([]);
     const [loaded, setLoaded] = useState(false);
+    const listDishes = dishes.map(dish => 
+        <li key={dish.dishName}>
+            <p>
+                <b>{dish.dishName}</b> {' '}
+                <b>{dish.unitType}</b> {' '}
+                <b>{dish.baselineCostPerUnit}</b> {' '}
+            </p>
+        </li>)
+
 
     useEffect(() => {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -27,14 +36,7 @@ export default function Dishes(){
         localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes))
     }, [dishes, loaded]);
 
-    const listDishes = dishes.map(dish => 
-    <li key={dish.dishName}>
-        <p>
-            <b>{dish.dishName}</b> {' '}
-            <b>{dish.unitType}</b> {' '}
-            <b>{dish.baselineCostPerUnit}</b> {' '}
-        </p>
-    </li>)
+    
 
     function handleClick(){
         const costNum = Number(baselineCostPerUnit);
@@ -71,7 +73,7 @@ export default function Dishes(){
         <p>
             <label>
                 Select Unit Option {' '}
-                <select value={unitType} onChange={e => setUnitType(e.target.value)}>
+                <select name="selectedUnit" value={unitType} onChange={e => setUnitType(e.target.value)}>
                     <option value="tray">Tray</option>
                     <option value="plate">Plate</option>
                 </select>
