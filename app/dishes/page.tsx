@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+const STORAGE_KEY = "catering_dishes_v1";
 
 export default function Dishes(){
     
@@ -8,6 +10,23 @@ export default function Dishes(){
     const [unitType, setUnitType] = useState("plate");
     const [baselineCostPerUnit, setbaselineCostPerUnit] = useState("");
     const [dishes, setDishes] = useState([]);
+    const [loaded, setLoaded] = useState(false);
+
+    useEffect(() => {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(raw){
+            setDishes(JSON.parse(raw));
+        }
+        setLoaded(true);
+    }, []);
+    
+    useEffect(() => {
+        if(!loaded){
+            return;
+        }
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes))
+    }, [dishes, loaded]);
+
     const listDishes = dishes.map(dish => 
     <li key={dish.dishName}>
         <p>
@@ -20,7 +39,7 @@ export default function Dishes(){
     function handleClick(){
         const costNum = Number(baselineCostPerUnit);
         if(costNum > 0 && dishName.trim() !== ""){
-            const newDish = {dishName: dishName, unitType: unitType, baselineCostPerUnit: costNum};
+            const newDish = {dishName: dishName.trim(), unitType: unitType, baselineCostPerUnit: costNum};
             setDishes(prev => [...prev, newDish]);
             setDishName("");
             setbaselineCostPerUnit("");
