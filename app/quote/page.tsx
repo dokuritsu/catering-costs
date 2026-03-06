@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from "react";
-import type {Dish} from "@/lib/types";
+import type {Dish, Quote} from "@/lib/types";
 
 const STORAGE_KEY = "catering_dishes_v3";
+const QUOTES_KEY = "catering_quotes_v1";
 
 export default function Quote(){
     // State variables
@@ -20,6 +21,7 @@ export default function Quote(){
     const [grocerySpend, setGrocerySpend] = useState("");
     const [miles, setMiles] = useState("10");
     const [ratePerMile, setRatePerMile] = useState("0.65");
+    const [savedQuotes, setSavedQuotes] = useState<Quote[]>([]);
 
     // Simplify
     const options = dishes.map(d => 
