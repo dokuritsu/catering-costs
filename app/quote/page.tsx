@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId } from "react";
 import type {Dish, Quote} from "@/lib/types";
 
 const STORAGE_KEY = "catering_dishes_v3";
@@ -64,6 +64,31 @@ export default function Quote(){
             setSavedQuotes(parse);
         }
     }, []);
+
+    function handleClick(){
+        if(qtyNum > 0 && pricePerUnit.trim() !== ""){
+            // Create new Quote
+            const newQuote = {
+                id: useId(), 
+                savedAt: new Date().toISOString(), 
+                dishName: selectedDishName, 
+                quantity: qtyNum, 
+                pricePerUnit: Number(pricePerUnit), 
+                grocerySpend: Number(grocerySpend), 
+                laborHours: Number(laborHours),
+                marginPct: marginPct, 
+                totalCost: Number(totalCost), 
+                revenue: Number(revenue), 
+                profit: Number(profit)
+            };
+            // Append to savedQuotes
+            setSavedQuotes(prev => [newQuote, ...prev]);
+            // Create new var with immediate update to save quote
+            const immediateSavedQ = [newQuote, ...savedQuotes];
+            // Save to local storage
+            localStorage.setItem(QUOTES_KEY, JSON.stringify(immediateSavedQ));
+        }
+    }
 
     return (
     <>
