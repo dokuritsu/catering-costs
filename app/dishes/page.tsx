@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { Dish, UnitType } from "@/lib/types";
 
-const STORAGE_KEY = "catering_dishes_v2";
+const STORAGE_KEY = "catering_dishes_v3";
 
 export default function Dishes(){
     
