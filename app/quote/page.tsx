@@ -56,6 +56,15 @@ export default function Quote(){
         }
     }, []);
 
+    // Load saved quotes on page mount
+    useEffect(() => {
+        const raw = localStorage.getItem(QUOTES_KEY);
+        if(raw){
+            const parse = JSON.parse(raw) as Quote[];
+            setSavedQuotes(parse);
+        }
+    }, []);
+
     return (
     <>
         <h1 className="text-3xl font-bold">Quotes</h1>
@@ -106,6 +115,9 @@ export default function Quote(){
                 <li>Profit: ${profit.toFixed(2)}</li>
                 <li>Suggested Price Per Unit: ${suggestedPricePerUnit.toFixed(2)}</li>
             </ul>
+        </div>
+        <div className="mt-6">
+            <button onClick={handleClick}><b>Save Quote</b></button>
         </div>
     </>
     );
