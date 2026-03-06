@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useId } from "react";
+import { useState, useEffect} from "react";
 import type {Dish, Quote} from "@/lib/types";
 
 const STORAGE_KEY = "catering_dishes_v3";
@@ -65,28 +65,31 @@ export default function Quote(){
         }
     }, []);
 
-    function handleClick(){
+    function handleSaveQuote(){
         if(qtyNum > 0 && pricePerUnit.trim() !== ""){
+            const quoteId = crypto.randomUUID();
             // Create new Quote
             const newQuote = {
-                id: useId(), 
+                id: quoteId, 
                 savedAt: new Date().toISOString(), 
                 dishName: selectedDishName, 
                 quantity: qtyNum, 
                 pricePerUnit: Number(pricePerUnit), 
                 grocerySpend: Number(grocerySpend), 
                 laborHours: Number(laborHours),
-                marginPct: marginPct, 
+                miles: Number(miles),
+                ratePerMile: Number(ratePerMile),
+                marginPct: Number(marginPct), 
                 totalCost: Number(totalCost), 
                 revenue: Number(revenue), 
                 profit: Number(profit)
-            };
+            } as Quote;
             // Append to savedQuotes
-            setSavedQuotes(prev => [newQuote, ...prev]);
-            // Create new var with immediate update to save quote
-            const immediateSavedQ = [newQuote, ...savedQuotes];
-            // Save to local storage
-            localStorage.setItem(QUOTES_KEY, JSON.stringify(immediateSavedQ));
+            setSavedQuotes(prev => { 
+                const updated = [newQuote, ...prev];
+                localStorage.setItem(QUOTES_KEY, JSON.stringify(updated)); 
+                return updated; 
+            })
         }
     }
 
@@ -142,7 +145,21 @@ export default function Quote(){
             </ul>
         </div>
         <div className="mt-6">
-            <button onClick={handleClick}><b>Save Quote</b></button>
+            <button onClick={handleSaveQuote}><b>Save Quote</b></button>
+            <h1 className="text-2xl font-bold">Recently Saved Quotes</h1>
+            {savedQuotes.map(quotes =>
+                <div className="mt-6" key={quotes.id}>
+                    <h3 className="font-bold">{quotes.dishName}</h3>
+                    <ul>
+                        <li>Saved Date: {new Date(quotes.savedAt).toLocaleString()}</li>
+                        <li>Plate Quantity: {quotes.quantity}</li>
+                        <li>Total Cost: ${quotes.totalCost}</li>
+                        <li>Revenue: ${quotes.revenue}</li>
+                        <li>Profit: ${quotes.profit.toFixed(2)}</li>
+                        <li>Profit per Plate: ${(quotes.profit/quotes.quantity).toFixed(2)}</li>
+                    </ul>
+                </div>
+            )}
         </div>
     </>
     );

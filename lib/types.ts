@@ -13,7 +13,9 @@ export type Quote = {
     pricePerUnit: number;
     grocerySpend: number;
     laborHours: number;
-    marginPct: string;
+    miles: number,
+    ratePerMile: number,
+    marginPct: number;
     totalCost: number;
     revenue: number;
     profit: number;
