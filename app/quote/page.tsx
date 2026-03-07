@@ -93,21 +93,28 @@ export default function Quote(){
         }
     }
 
+    function handleDeleteQuote(id: string){
+        setSavedQuotes(prev => {
+            const filtered = prev.filter(q => q.id !== id);
+            localStorage.setItem(QUOTES_KEY, JSON.stringify(filtered));
+            return filtered;
+        })
+    }
+
     return (
     <>
         <h1 className="text-3xl font-bold">Quotes</h1>
         <h2 className="text-2xl font-bold">Order Basics</h2>
         <div className="mt-6">
-            <p>
-                <label>
-                    Select a Dish: {' '}
-                    <select name="selectedDish" value={selectedDishName} onChange={e => setSelectedDishName(e.target.value)}>
-                        <option value="" disabled>Select a dish...</option>
-                        {options}
-                    </select>
-                </label>
-            </p>
             <ul className="list-disc ml-6 space-y-1">
+                <li>
+                    <label>Select a Dish:
+                        <select className="border rounded px-2 py-1 ml-1" name="selectedDish" value={selectedDishName} onChange={e => setSelectedDishName(e.target.value)}>
+                            <option value="" disabled>Select a dish...</option>
+                            {options}
+                        </select>
+                    </label>
+                </li>
                 <li >Input Quantity of Dish: <input className="border rounded px-2 py-1 ml-2" type="number" value={quantity} onChange={e => setQuantity(e.target.value)}/></li>
                 <li>Input Price per Plate: <input className="border rounded px-2 py-1 ml-2" type="number" value={pricePerUnit} onChange={e => setPricePerUnit(e.target.value)}/></li>
                 <li>Input Grocery Spend for Entire Order: <input className="border rounded px-2 py-1 ml-2" type="number" value={grocerySpend} onChange={e => setGrocerySpend(e.target.value)}/></li>
@@ -128,7 +135,8 @@ export default function Quote(){
             <h2 className="text-2xl font-bold">Extra Costs</h2>
             <ul className="list-disc ml-6 space-y-1">
                 <li>Input Labor Hours: <input className="border rounded px-2 py-1 ml-2" type="number" value={laborHours} onChange={e => setLaborHours(e.target.value)}/></li>
-                <li>Input Labor Rate: <input className="border rounded px-2 py-1 ml-2" type="number" value={laborRate} onChange={e => setLaborRate(e.target.value)}/></li>
+                <li>Input Value of my time ($/h): <input className="border rounded px-2 py-1 ml-2" type="number" value={laborRate} onChange={e => setLaborRate(e.target.value)}/></li>
+                <i>Used to estimate if the order is worth the time (not cash paid)</i>
                 <li>Input Packaging Cost: <input className="border rounded px-2 py-1 ml-2" type="number" value={packagingCost} onChange={e => setPackagingCost(e.target.value)}/></li>
                 <li>Input Miles Traveled: <input className="border rounded px-2 py-1 ml-2" type="number" value={miles} onChange={e => setMiles(e.target.value)}/></li>
                 <li>Input Rate per Mile Traveled: <input className="border rounded px-2 py-1 ml-2" type="number" value={ratePerMile} onChange={e => setRatePerMile(e.target.value)}/></li>
@@ -149,7 +157,9 @@ export default function Quote(){
             <h1 className="text-2xl font-bold">Recently Saved Quotes</h1>
             {savedQuotes.map(quotes =>
                 <div className="mt-6" key={quotes.id}>
-                    <h3 className="font-bold">{quotes.dishName}</h3>
+                    <h3 className="font-bold">{quotes.dishName}{' '}
+                        <button onClick={() => {handleDeleteQuote(quotes.id)}}>Delete</button>
+                    </h3>
                     <ul>
                         <li>Saved Date: {new Date(quotes.savedAt).toLocaleString()}</li>
                         <li>Plate Quantity: {quotes.quantity}</li>

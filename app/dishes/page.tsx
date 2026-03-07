@@ -51,50 +51,29 @@ export default function Dishes(){
 
     return(
     <>
-        <h1>Dishes</h1>
-        <p>
-            
-           <label>
-            Input Dish Name:{' '}
-            <input
-                value={dishName}
-                onChange={e => setDishName(e.target.value)}
-            />
-        </label> 
-        </p>
-        
-        <p>
-            <label>
-                Select Unit Option {' '}
-                <select name="selectedUnit" value={unitType} onChange={e => setUnitType(e.target.value as UnitType)}>
-                    <option value="tray">Tray</option>
-                    <option value="plate">Plate</option>
-                </select>
-            </label>
-        </p>
-        
-        <p>
-            <label>
-                Input Baseline Cost:{' '}
-                <input
-                    type="number"
-                    value={baselineCostPerUnit}
-                    onChange={e => setbaselineCostPerUnit(e.target.value)}
-                />
-            </label>
-        </p>
-        <p>
-            <button onClick={handleClick}>
+        <h1 className='text-3xl font-bold'>Dishes</h1>
+        <div className="mt-4">
+            <ul className='ml-3 space-y-4'>
+                <li className="flex items-center gap-2">Input Dish Name: <input className="border rounded px-2 py-1 ml-1" value={dishName} onChange={e => setDishName(e.target.value)}/></li>
+                <li className="flex items-center gap-2">Input Baseline Cost: <input className="border rounded px-2 py-1 ml-1" type="number" value={baselineCostPerUnit} onChange={e => setbaselineCostPerUnit(e.target.value)}/></li>
+                <li className="flex items-center gap-2">
+                    <label>Select Unit Option:
+                        <select className="border rounded px-2 py-1 ml-1" name="selectedUnit" value={unitType} onChange={e => setUnitType(e.target.value as UnitType)}>
+                            <option value="tray">Tray</option>
+                            <option value="plate">Plate</option>
+                        </select>
+                    </label>
+                </li>
+            </ul>
+            <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleClick}>
                 Add Dish
             </button>
-        </p>
-        
-        Inputted DishName: {dishName} {' '}
-        {' '} Selected Unit: {unitType}
-        {' '} Inputted Cost: {baselineCostPerUnit}
-        {' '} Current Dishes count: {dishes.length}
-        {' '} List of dishes: <ul>{listDishes}</ul>
-        
+        </div>
+        <div className="mt-6">
+            <h2 className="text-2xl font-bold">List of dishes: </h2>
+            <ul className="list-disc ml-6 space-y-1">{listDishes}</ul>
+            
+        </div>
     </>
 )
 };
