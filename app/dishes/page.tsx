@@ -48,6 +48,37 @@ export default function Dishes(){
         };
     }
 
+    function DishRow({dish}: {dish: Dish}){
+        return(
+            <tr className="hover:bg-gray-800/40">
+                <td className='px-3 py-2 border-b border-white-700'>{dish.dishName}</td>
+                <td className='px-3 py-2 border-b border-white-700'>{dish.unitType}</td>
+                <td className='px-3 py-2 border-b border-white-700'>{dish.baselineCostPerUnit}</td>
+            </tr>
+        );
+    }
+
+    function DisplayDishTable({dishes}: {dishes: Dish[]}){
+        const rows = dishes.map(dish =>
+            <DishRow 
+                dish={dish}
+                key={dish.dishName}/>
+        )
+
+        return (
+            <table className='mt-4 border w-full md:w-2/3 lg:w-1/2 border-white-600 rounded-md'>
+                <thead className='px-3 py-2 text-left border-b border-white-600 font-semibold'>
+                    <tr>
+                        <th>DishName</th>
+                        <th>Unit Type</th>
+                        <th>Baseline Cost per Type</th>
+                    </tr>
+                </thead>
+                <tbody>{rows}</tbody>
+            </table>
+        );
+    }
+
     return(
     <>
         <h1 className='text-3xl font-bold'>Dishes</h1>
@@ -68,13 +99,9 @@ export default function Dishes(){
                 Add Dish
             </button>
         </div>
-        <div className="mt-6">
+        <div className="mt-6 overflow-hidden">
             <h1 className="mt-3 text-2xl font-bold">List of Dishes:</h1>
-            {dishes.map(d =>
-                <div className='mt-6' key={d.dishName}>
-                <h2 className='font-bold'>{d.dishName} | {d.unitType} | {d.baselineCostPerUnit}</h2>
-                </div>
-            )}
+            <DisplayDishTable dishes={dishes}/>
         </div>
         <div className="mt-6">
             <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleClearAllDishes}>Clear All Dishes</button>
