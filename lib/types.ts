@@ -10,12 +10,16 @@ export type Quote = {
     savedAt: string;
     dishName: string;
     quantity: number;
+    laborHours: number,
+    laborRate: number,
+    packagingCost: number,
+    deliveryCost: number,
+    miscCost: number,
+    marginPct: number;
     pricePerUnit: number;
     grocerySpend: number;
-    laborHours: number;
     miles: number,
     ratePerMile: number,
-    marginPct: number;
     totalCost: number;
     revenue: number;
     profit: number;

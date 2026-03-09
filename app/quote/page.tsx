@@ -17,8 +17,8 @@ export default function Quote(){
     const [deliveryCost, setDeliveryCost] = useState("0");
     const [miscCost, setMiscCost] = useState("0");
     const [marginPct, setMarginPct] = useState("30");
-    const [pricePerUnit, setPricePerUnit] = useState("");
-    const [grocerySpend, setGrocerySpend] = useState("");
+    const [pricePerUnit, setPricePerUnit] = useState("0");
+    const [grocerySpend, setGrocerySpend] = useState("0");
     const [miles, setMiles] = useState("10");
     const [ratePerMile, setRatePerMile] = useState("0.65");
     const [savedQuotes, setSavedQuotes] = useState<Quote[]>([]);
@@ -44,7 +44,7 @@ export default function Quote(){
     const revenue = Number(pricePerUnit) * qtyNum
     const profit = revenue - totalCost
 
-    // Load dishes from localStorage key "catering_dishes_v2"
+    // Load dishes from localStorage key
     useEffect(() => {
         const raw = localStorage.getItem(STORAGE_KEY);
         if(raw){
@@ -74,12 +74,16 @@ export default function Quote(){
                 savedAt: new Date().toISOString(), 
                 dishName: selectedDishName, 
                 quantity: qtyNum, 
+                laborHours: Number(laborHours),
+                laborRate: Number(laborRate),
+                packagingCost: Number(packagingCost),
+                deliveryCost: Number(deliveryCost),
+                miscCost: Number(miscCost),
+                marginPct: Number(marginPct), 
                 pricePerUnit: Number(pricePerUnit), 
                 grocerySpend: Number(grocerySpend), 
-                laborHours: Number(laborHours),
                 miles: Number(miles),
                 ratePerMile: Number(ratePerMile),
-                marginPct: Number(marginPct), 
                 totalCost: Number(totalCost), 
                 revenue: Number(revenue), 
                 profit: Number(profit)
@@ -101,6 +105,19 @@ export default function Quote(){
         })
     }
 
+    function handleLoadQuote(quote: Quote){
+        setSelectedDishName(quote.dishName);
+        setQuantity(String(quote.quantity));
+        setLaborHours(String(quote.laborHours));
+        setLaborRate(String(quote.laborRate));
+        setPackagingCost(String(quote.packagingCost));
+        setDeliveryCost(String(quote.deliveryCost));
+        setMiscCost(String(quote.miscCost)),
+        setPricePerUnit(String(quote.pricePerUnit));
+        setGrocerySpend(String(quote.grocerySpend));
+        setMiles(String(quote.miles));
+    }
+
     return (
     <>
         <h1 className="text-3xl font-bold">Quotes</h1>
@@ -115,7 +132,7 @@ export default function Quote(){
                         </select>
                     </label>
                 </li>
-                <li >Input Quantity of Dish: <input className="border rounded px-2 py-1 ml-2" type="number" value={quantity} onChange={e => setQuantity(e.target.value)}/></li>
+                <li>Input Quantity of Dish: <input className="border rounded px-2 py-1 ml-2" type="number" value={quantity} onChange={e => setQuantity(e.target.value)}/></li>
                 <li>Input Price per Plate: <input className="border rounded px-2 py-1 ml-2" type="number" value={pricePerUnit} onChange={e => setPricePerUnit(e.target.value)}/></li>
                 <li>Input Grocery Spend for Entire Order: <input className="border rounded px-2 py-1 ml-2" type="number" value={grocerySpend} onChange={e => setGrocerySpend(e.target.value)}/></li>
                 <li>Input Target Profit Margin: <input className="border rounded px-2 py-1 ml-2" type="number" value={marginPct} onChange={e => setMarginPct(e.target.value)}/></li>
@@ -153,14 +170,15 @@ export default function Quote(){
             </ul>
         </div>
         <div className="mt-6">
-            <button onClick={handleSaveQuote}><b>Save Quote</b></button>
-            <h1 className="text-2xl font-bold">Recently Saved Quotes</h1>
+            <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleSaveQuote}><b>Save Quote</b></button>
+            <h1 className="mt-3 text-2xl font-bold">Recently Saved Quotes</h1>
             {savedQuotes.map(quotes =>
                 <div className="mt-6" key={quotes.id}>
                     <h3 className="font-bold">{quotes.dishName}{' '}
-                        <button onClick={() => {handleDeleteQuote(quotes.id)}}>Delete</button>
+                        <button className="mt-4 border rounded px-2 py-1 font-semibold" onClick={() => {handleLoadQuote(quotes)}}>Load</button>
+                        <button className="mt-4 border rounded px-2 py-1 font-semibold" onClick={() => {handleDeleteQuote(quotes.id)}}>Delete</button>
                     </h3>
-                    <ul>
+                    <ul className="list-disc ml-6 space-y-1">
                         <li>Saved Date: {new Date(quotes.savedAt).toLocaleString()}</li>
                         <li>Plate Quantity: {quotes.quantity}</li>
                         <li>Total Cost: ${quotes.totalCost}</li>
