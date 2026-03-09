@@ -12,14 +12,6 @@ export default function Dishes(){
     const [baselineCostPerUnit, setbaselineCostPerUnit] = useState("");
     const [dishes, setDishes] = useState<Dish[]>([]);
     const [loaded, setLoaded] = useState(false);
-    const listDishes = dishes.map(dish => 
-        <li key={dish.dishName}>
-            <p>
-                <b>{dish.dishName}</b> {' '}
-                <b>{dish.unitType}</b> {' '}
-                <b>{dish.baselineCostPerUnit}</b> {' '}
-            </p>
-        </li>)
 
 
     useEffect(() => {
@@ -39,7 +31,7 @@ export default function Dishes(){
 
     
 
-    function handleClick(){
+    function handleAddDish(){
         const costNum = Number(baselineCostPerUnit);
         if(costNum > 0 && dishName.trim() !== ""){
             const newDish = {dishName: dishName.trim(), unitType: unitType, baselineCostPerUnit: costNum};
@@ -47,6 +39,13 @@ export default function Dishes(){
             setDishName("");
             setbaselineCostPerUnit("");
         }
+    }
+
+    function handleClearAllDishes(){
+        if(confirm("Are you sure you want to remove all dishes?")){
+           setDishes([]); 
+           localStorage.removeItem(STORAGE_KEY); 
+        };
     }
 
     return(
@@ -65,14 +64,20 @@ export default function Dishes(){
                     </label>
                 </li>
             </ul>
-            <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleClick}>
+            <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleAddDish}>
                 Add Dish
             </button>
         </div>
         <div className="mt-6">
-            <h2 className="text-2xl font-bold">List of dishes: </h2>
-            <ul className="list-disc ml-6 space-y-1">{listDishes}</ul>
-            
+            <h1 className="mt-3 text-2xl font-bold">List of Dishes:</h1>
+            {dishes.map(d =>
+                <div className='mt-6' key={d.dishName}>
+                <h2 className='font-bold'>{d.dishName} | {d.unitType} | {d.baselineCostPerUnit}</h2>
+                </div>
+            )}
+        </div>
+        <div className="mt-6">
+            <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleClearAllDishes}>Clear All Dishes</button>
         </div>
     </>
 )

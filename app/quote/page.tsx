@@ -112,10 +112,19 @@ export default function Quote(){
         setLaborRate(String(quote.laborRate));
         setPackagingCost(String(quote.packagingCost));
         setDeliveryCost(String(quote.deliveryCost));
-        setMiscCost(String(quote.miscCost)),
+        setMiscCost(String(quote.miscCost));
+        setMarginPct(String(quote.marginPct));
         setPricePerUnit(String(quote.pricePerUnit));
         setGrocerySpend(String(quote.grocerySpend));
         setMiles(String(quote.miles));
+        setRatePerMile(String(quote.ratePerMile));
+    }
+
+    function handleClearAllQuotes(){
+        if(confirm("Are you sure you want to remove all quotes?")){
+           setSavedQuotes([]); 
+           localStorage.removeItem(QUOTES_KEY); 
+        };
     }
 
     return (
@@ -181,13 +190,16 @@ export default function Quote(){
                     <ul className="list-disc ml-6 space-y-1">
                         <li>Saved Date: {new Date(quotes.savedAt).toLocaleString()}</li>
                         <li>Plate Quantity: {quotes.quantity}</li>
-                        <li>Total Cost: ${quotes.totalCost}</li>
-                        <li>Revenue: ${quotes.revenue}</li>
+                        <li>Total Cost: ${quotes.totalCost.toFixed(2)}</li>
+                        <li>Revenue: ${quotes.revenue.toFixed(2)}</li>
                         <li>Profit: ${quotes.profit.toFixed(2)}</li>
                         <li>Profit per Plate: ${(quotes.profit/quotes.quantity).toFixed(2)}</li>
                     </ul>
                 </div>
             )}
+        </div>
+        <div className="mt-6">
+            <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleClearAllQuotes}>Clear All Quotes</button>
         </div>
     </>
     );
