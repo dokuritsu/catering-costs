@@ -17,10 +17,19 @@ export default function Dishes(){
     useEffect(() => {
         const raw = localStorage.getItem(STORAGE_KEY);
         if(raw){
-            const parsed = JSON.parse(raw) as Dish[];
-            console.log("loaded dishes", parsed);
-            console.log("dish ids:", parsed.map(d => d.id))
-            setDishes(parsed);
+            const parsed = JSON.parse(raw);
+            const clean = parsed.filter(d => d != null);
+            const migrated = clean.map(d => {
+                if(!d.id){
+                   d.id = crypto.randomUUID(); 
+                }
+                return d;
+            }) as Dish[];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+            console.log("loaded dishes", migrated);
+            console.log("dish ids:", migrated.map(d => d.id))
+            setDishes(migrated);
+            
         }
         setLoaded(true);
     }, []);
@@ -51,12 +60,24 @@ export default function Dishes(){
         };
     }
 
+    function handleDeleteDish(id: string){
+        setDishes(prev => {
+            const filtered = prev.filter(d => d.id !== id);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+            return filtered;
+        })
+    }
+
     function DishRow({dish}: {dish: Dish}){
         return(
             <tr className="hover:bg-gray-800/40">
                 <td className='px-3 py-2 border-b border-white-700'>{dish.dishName}</td>
                 <td className='px-3 py-2 border-b border-white-700'>{dish.unitType}</td>
                 <td className='px-3 py-2 border-b border-white-700'>{dish.baselineCostPerUnit}</td>
+                <td className='px-3 py-2 border-b border-white-700'>
+                    <button className="border rounded px-3 py-2 font-semibold" onClick={() => {handleEditDish(dish.id)}}>Edit</button>
+                    <button className="border rounded px-3 py-2 font-semibold" onClick={() => {handleDeleteDish(dish.id)}}>Delete</button>
+                </td>
             </tr>
         );
     }
@@ -75,6 +96,7 @@ export default function Dishes(){
                         <th className='px-3 py-2 text-left border-b border-white-600 font-semibold'>DishName</th>
                         <th className='px-3 py-2 text-left border-b border-white-600 font-semibold'>Unit Type</th>
                         <th className='px-3 py-2 text-left border-b border-white-600 font-semibold'>Baseline Cost per Type</th>
+                        <th className='px-3 py-2 text-left border-b border-white-600 font-semibold'>Action</th>
                     </tr>
                 </thead>
                 <tbody>{rows}</tbody>
