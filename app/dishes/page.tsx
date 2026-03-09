@@ -17,7 +17,10 @@ export default function Dishes(){
     useEffect(() => {
         const raw = localStorage.getItem(STORAGE_KEY);
         if(raw){
-            setDishes(JSON.parse(raw));
+            const parsed = JSON.parse(raw) as Dish[];
+            console.log("loaded dishes", parsed);
+            console.log("dish ids:", parsed.map(d => d.id))
+            setDishes(parsed);
         }
         setLoaded(true);
     }, []);
@@ -34,7 +37,7 @@ export default function Dishes(){
     function handleAddDish(){
         const costNum = Number(baselineCostPerUnit);
         if(costNum > 0 && dishName.trim() !== ""){
-            const newDish = {dishName: dishName.trim(), unitType: unitType, baselineCostPerUnit: costNum};
+            const newDish = {id: crypto.randomUUID(), dishName: dishName.trim(), unitType: unitType, baselineCostPerUnit: costNum};
             setDishes(prev => [...prev, newDish]);
             setDishName("");
             setbaselineCostPerUnit("");
@@ -62,16 +65,16 @@ export default function Dishes(){
         const rows = dishes.map(dish =>
             <DishRow 
                 dish={dish}
-                key={dish.dishName}/>
+                key={dish.id}/>
         )
 
         return (
             <table className='mt-4 border w-full md:w-2/3 lg:w-1/2 border-white-600 rounded-md'>
-                <thead className='px-3 py-2 text-left border-b border-white-600 font-semibold'>
+                <thead>
                     <tr>
-                        <th>DishName</th>
-                        <th>Unit Type</th>
-                        <th>Baseline Cost per Type</th>
+                        <th className='px-3 py-2 text-left border-b border-white-600 font-semibold'>DishName</th>
+                        <th className='px-3 py-2 text-left border-b border-white-600 font-semibold'>Unit Type</th>
+                        <th className='px-3 py-2 text-left border-b border-white-600 font-semibold'>Baseline Cost per Type</th>
                     </tr>
                 </thead>
                 <tbody>{rows}</tbody>

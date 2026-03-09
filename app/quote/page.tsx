@@ -9,7 +9,8 @@ const QUOTES_KEY = "catering_quotes_v1";
 export default function Quote(){
     // State variables
     const [dishes, setDishes] = useState<Dish[]>([]);
-    const [selectedDishName, setSelectedDishName] = useState("");
+    const [selectedDishId, setSelectedDishId] = useState("");
+    // const [selectedDishName, setSelectedDishName] = useState("");
     const [quantity, setQuantity] = useState("1");
     const [laborHours, setLaborHours] = useState("0");
     const [laborRate, setLaborRate] = useState("20");
@@ -24,13 +25,14 @@ export default function Quote(){
     const [savedQuotes, setSavedQuotes] = useState<Quote[]>([]);
 
     // Simplify
+    console.log(dishes.map(d=> d.id));
     const options = dishes.map(d => 
-        <option value={d.dishName} key={d.dishName}>{d.dishName}</option>
+        <option value={d.id} key={d.id}>{d.dishName}</option>
     )
     const qtyNum = Number(quantity)
     
     // Additional calculations
-    const selectedDish = dishes.find(d => d.dishName === selectedDishName)
+    const selectedDish = dishes.find(d => d.id === selectedDishId)
     const estimatedDishCost = selectedDish ? selectedDish.baselineCostPerUnit * qtyNum : 0
     const laborCost = Number(laborHours) * Number(laborRate)
     const overheadCost = Number(packagingCost) + Number(deliveryCost) + Number(miscCost)
@@ -51,7 +53,7 @@ export default function Quote(){
             const parsed = JSON.parse(raw) as Dish[];
             setDishes(parsed);
             if(parsed.length > 0){
-                setSelectedDishName(parsed[0].dishName);
+                setSelectedDishId(parsed[0].id);
             }
         }
     }, []);
@@ -71,8 +73,9 @@ export default function Quote(){
             // Create new Quote
             const newQuote = {
                 id: quoteId, 
+                dishId: selectedDishId,
                 savedAt: new Date().toISOString(), 
-                dishName: selectedDishName, 
+                dishName: selectedDish?.dishName ?? "", 
                 quantity: qtyNum, 
                 laborHours: Number(laborHours),
                 laborRate: Number(laborRate),
@@ -106,7 +109,7 @@ export default function Quote(){
     }
 
     function handleLoadQuote(quote: Quote){
-        setSelectedDishName(quote.dishName);
+        setSelectedDishId(quote.dishId);
         setQuantity(String(quote.quantity));
         setLaborHours(String(quote.laborHours));
         setLaborRate(String(quote.laborRate));
@@ -135,7 +138,7 @@ export default function Quote(){
             <ul className="list-disc ml-6 space-y-1">
                 <li>
                     <label>Select a Dish:
-                        <select className="border rounded px-2 py-1 ml-1" name="selectedDish" value={selectedDishName} onChange={e => setSelectedDishName(e.target.value)}>
+                        <select className="border rounded px-2 py-1 ml-1" name="selectedDish" value={selectedDishId} onChange={e => setSelectedDishId(e.target.value)}>
                             <option value="" disabled>Select a dish...</option>
                             {options}
                         </select>

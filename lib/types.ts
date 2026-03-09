@@ -1,5 +1,6 @@
 export type UnitType = "plate" | "tray";
 export type Dish = {
+    id: string,
     dishName: string;
     unitType: UnitType;
     baselineCostPerUnit: number;
@@ -7,6 +8,7 @@ export type Dish = {
 
 export type Quote = {
     id: string;
+    dishId: string,
     savedAt: string;
     dishName: string;
     quantity: number;
