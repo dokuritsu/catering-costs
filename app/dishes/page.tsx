@@ -99,10 +99,10 @@ export default function Dishes(){
             
             <tr className="hover:bg-gray-800/40">
                 <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <input className='px-2 py-1 text-sm w-32' autoFocus value={editingDishName} onChange={e => setEditingDishName(e.target.value)}></input> : dish.dishName}</td>
-                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <select  className='px-2 py-1 text-sm w-24' autoFocus value={editingUnitType} onChange={e => setEditingUnitType(e.target.value as UnitType)}>
+                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <select  className='px-2 py-1 text-sm w-24' value={editingUnitType} onChange={e => setEditingUnitType(e.target.value as UnitType)}>
                     <option value="tray">Tray</option>
                     <option value="plate">Plate</option></select> : dish.unitType}</td>
-                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <input className='px-2 py-1 text-sm w-24' type='number' autoFocus value={editingBaselineCost} onChange={e => setEditingBaselineCost(e.target.value)}></input> : dish.baselineCostPerUnit}</td>
+                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <input className='px-2 py-1 text-sm w-24' type='number' value={editingBaselineCost} onChange={e => setEditingBaselineCost(e.target.value)}></input> : dish.baselineCostPerUnit}</td>
                 <td className='px-3 py-2 border-b border-white-700'>
                     {isEditing ? 
                         <>
