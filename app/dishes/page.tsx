@@ -74,7 +74,6 @@ export default function Dishes(){
 
     function handleEditDish(id: string){
         const dish = dishes.find(d => d.id == id) as Dish; 
-        
         setEditingDishId(dish.id);
         setEditingDishName(dish.dishName);
         setEditingUnitType(dish.unitType);
@@ -90,6 +89,12 @@ export default function Dishes(){
     }
 
     function handleCancelDishEdit(){
+        const dish = dishes.find(d => d.id == editingDishId);
+        if(dish){
+            setEditingDishName(dish.dishName);
+            setEditingUnitType(dish.unitType);
+            setEditingBaselineCost(String(dish.baselineCostPerUnit));
+        }
         setEditingDishId(null);
     }
 
@@ -107,11 +112,11 @@ export default function Dishes(){
                     {isEditing ? 
                         <>
                             <button type='button' className="border rounded px-3 py-2 font-semibold" onClick={() => { handleSaveDish(dish.id); } }>Save</button>
-                            <button type='button' className="border rounded px-3 py-2 font-semibold" onClick={handleCancelDishEdit}>Cancel</button>
+                            <button type='button' className="ml-2 border rounded px-3 py-2 font-semibold" onClick={handleCancelDishEdit}>Cancel</button>
                         </> : 
                         <>
                             <button type='button' className="border rounded px-3 py-2 font-semibold" onClick={() => { handleEditDish(dish.id); } }>Edit</button>
-                            <button type='button' className="border rounded px-3 py-2 font-semibold" onClick={() => { handleDeleteDish(dish.id); } }>Delete</button>
+                            <button type='button' className="ml-2 border rounded px-3 py-2 font-semibold" onClick={() => { handleDeleteDish(dish.id); } }>Delete</button>
                         </>
                     }
                 </td>
@@ -143,31 +148,34 @@ export default function Dishes(){
 
     return(
     <>
-        <h1 className='text-3xl font-bold'>Dishes</h1>
-        <div className="mt-4">
-            <ul className='ml-3 space-y-4'>
-                <li className="flex items-center gap-2">Input Dish Name: <input className="border rounded px-2 py-1 ml-1" value={dishName} onChange={e => setDishName(e.target.value)}/></li>
-                <li className="flex items-center gap-2">Input Baseline Cost: <input className="border rounded px-2 py-1 ml-1" type="number" value={baselineCostPerUnit} onChange={e => setbaselineCostPerUnit(e.target.value)}/></li>
-                <li className="flex items-center gap-2">
-                    <label>Select Unit Option:
-                        <select className="border rounded px-2 py-1 ml-1" name="selectedUnit" value={unitType} onChange={e => setUnitType(e.target.value as UnitType)}>
-                            <option value="tray">Tray</option>
-                            <option value="plate">Plate</option>
-                        </select>
-                    </label>
-                </li>
-            </ul>
-            <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleAddDish}>
-                Add Dish
-            </button>
+        <div className='ml-2'>
+            <h1 className='text-3xl font-bold'>Dishes</h1>
+            <div className="mt-4">
+                <ul className='ml-3 space-y-4'>
+                    <li className="flex items-center gap-2">Input Dish Name: <input className="border rounded px-2 py-1 ml-1" value={dishName} onChange={e => setDishName(e.target.value)}/></li>
+                    <li className="flex items-center gap-2">Input Baseline Cost: <input className="border rounded px-2 py-1 ml-1" type="number" value={baselineCostPerUnit} onChange={e => setbaselineCostPerUnit(e.target.value)}/></li>
+                    <li className="flex items-center gap-2">
+                        <label>Select Unit Option:
+                            <select className="border rounded px-2 py-1 ml-1" name="selectedUnit" value={unitType} onChange={e => setUnitType(e.target.value as UnitType)}>
+                                <option value="tray">Tray</option>
+                                <option value="plate">Plate</option>
+                            </select>
+                        </label>
+                    </li>
+                </ul>
+                <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleAddDish}>
+                    Add Dish
+                </button>
+            </div>
+            <div className="mt-6 overflow-hidden">
+                <h1 className="mt-3 text-2xl font-bold">List of Dishes:</h1>
+                <DisplayDishTable dishes={dishes}/>
+            </div>
+            <div className="mt-6">
+                <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleClearAllDishes}>Clear All Dishes</button>
+            </div>
         </div>
-        <div className="mt-6 overflow-hidden">
-            <h1 className="mt-3 text-2xl font-bold">List of Dishes:</h1>
-            <DisplayDishTable dishes={dishes}/>
-        </div>
-        <div className="mt-6">
-            <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleClearAllDishes}>Clear All Dishes</button>
-        </div>
+        
     </>
 )
 };

@@ -132,78 +132,81 @@ export default function Quote(){
 
     return (
     <>
-        <h1 className="text-3xl font-bold">Quotes</h1>
-        <h2 className="text-2xl font-bold">Order Basics</h2>
-        <div className="mt-6">
-            <ul className="list-disc ml-6 space-y-1">
-                <li>
-                    <label>Select a Dish:
-                        <select className="border rounded px-2 py-1 ml-1" name="selectedDish" value={selectedDishId} onChange={e => setSelectedDishId(e.target.value)}>
-                            <option value="" disabled>Select a dish...</option>
-                            {options}
-                        </select>
-                    </label>
-                </li>
-                <li>Input Quantity of Dish: <input className="border rounded px-2 py-1 ml-2" type="number" value={quantity} onChange={e => setQuantity(e.target.value)}/></li>
-                <li>Input Price per Plate: <input className="border rounded px-2 py-1 ml-2" type="number" value={pricePerUnit} onChange={e => setPricePerUnit(e.target.value)}/></li>
-                <li>Input Grocery Spend for Entire Order: <input className="border rounded px-2 py-1 ml-2" type="number" value={grocerySpend} onChange={e => setGrocerySpend(e.target.value)}/></li>
-                <li>Input Target Profit Margin: <input className="border rounded px-2 py-1 ml-2" type="number" value={marginPct} onChange={e => setMarginPct(e.target.value)}/></li>
-                <i>30% margin means 30% of the price is profit</i>
-            </ul>
+        <div className="ml-2">
+            <h1 className="text-3xl font-bold">Quotes</h1>
+            <h2 className="text-2xl font-bold">Order Basics</h2>
+            <div className="mt-6">
+                <ul className="list-disc ml-6 space-y-1">
+                    <li>
+                        <label>Select a Dish:
+                            <select className="border rounded px-2 py-1 ml-1" name="selectedDish" value={selectedDishId} onChange={e => setSelectedDishId(e.target.value)}>
+                                <option value="" disabled>Select a dish...</option>
+                                {options}
+                            </select>
+                        </label>
+                    </li>
+                    <li>Input Quantity of Dish: <input className="border rounded px-2 py-1 ml-2" type="number" value={quantity} onChange={e => setQuantity(e.target.value)}/></li>
+                    <li>Input Price per Plate: <input className="border rounded px-2 py-1 ml-2" type="number" value={pricePerUnit} onChange={e => setPricePerUnit(e.target.value)}/></li>
+                    <li>Input Grocery Spend for Entire Order: <input className="border rounded px-2 py-1 ml-2" type="number" value={grocerySpend} onChange={e => setGrocerySpend(e.target.value)}/></li>
+                    <li>Input Target Profit Margin: <input className="border rounded px-2 py-1 ml-2" type="number" value={marginPct} onChange={e => setMarginPct(e.target.value)}/></li>
+                    <i>30% margin means 30% of the price is profit</i>
+                </ul>
+            </div>
+            <div className="mt-6">
+                <h2 className="text-2xl font-bold">Order Summary</h2>
+                <ul className="list-disc ml-6 space-y-1">
+                    <li>Revenue: ${revenue.toFixed(2)}</li>
+                    <li>Food Cost Total: ${foodCostUsed.toFixed(2)}</li>
+                    <li>Food Cost per Plate: {qtyNum > 0 ? `$${(foodCostUsed/qtyNum).toFixed(2)}` : "-"}</li>
+                    <li>Profit per Plate: {qtyNum > 0 ? `$${(profit/qtyNum).toFixed(2)}` : "-"}</li>
+                </ul>
+            </div>
+            <div className="mt-6">
+                <h2 className="text-2xl font-bold">Extra Costs</h2>
+                <ul className="list-disc ml-6 space-y-1">
+                    <li>Input Labor Hours: <input className="border rounded px-2 py-1 ml-2" type="number" value={laborHours} onChange={e => setLaborHours(e.target.value)}/></li>
+                    <li>Input Value of my time ($/h): <input className="border rounded px-2 py-1 ml-2" type="number" value={laborRate} onChange={e => setLaborRate(e.target.value)}/></li>
+                    <i>Used to estimate if the order is worth the time (not cash paid)</i>
+                    <li>Input Packaging Cost: <input className="border rounded px-2 py-1 ml-2" type="number" value={packagingCost} onChange={e => setPackagingCost(e.target.value)}/></li>
+                    <li>Input Miles Traveled: <input className="border rounded px-2 py-1 ml-2" type="number" value={miles} onChange={e => setMiles(e.target.value)}/></li>
+                    <li>Input Rate per Mile Traveled: <input className="border rounded px-2 py-1 ml-2" type="number" value={ratePerMile} onChange={e => setRatePerMile(e.target.value)}/></li>
+                    <li>Input Misc Cost: <input className="border rounded px-2 py-1 ml-2" type="number" value={miscCost} onChange={e => setMiscCost(e.target.value)}/></li>
+                    <li>Input Delivery Cost: <input className="border rounded px-2 py-1 ml-2" type="number" value={deliveryCost} onChange={e => setDeliveryCost(e.target.value)}/></li>
+                </ul>
+            </div>
+            <div className="mt-6">
+                <h2 className="text-2xl font-bold">Totals</h2>
+                <ul className="list-disc ml-6 space-y-1">
+                    <li>Total Cost: ${totalCost.toFixed(2)}</li>
+                    <li>Profit: ${profit.toFixed(2)}</li>
+                    <li>Suggested Price Per Unit: ${suggestedPricePerUnit.toFixed(2)}</li>
+                </ul>
+            </div>
+            <div className="mt-6">
+                <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleSaveQuote}><b>Save Quote</b></button>
+                <h1 className="mt-3 text-2xl font-bold">Recently Saved Quotes</h1>
+                {savedQuotes.map(quotes =>
+                    <div className="mt-6" key={quotes.id}>
+                        <h3 className="font-bold">{quotes.dishName}{' '}
+                            <button className="mt-4 border rounded px-2 py-1 font-semibold" onClick={() => {handleLoadQuote(quotes)}}>Load</button>
+                            <button className="mt-4 border rounded px-2 py-1 font-semibold" onClick={() => {handleDeleteQuote(quotes.id)}}>Delete</button>
+                        </h3>
+                        <ul className="list-disc ml-6 space-y-1">
+                            <li>Saved Date: {new Date(quotes.savedAt).toLocaleString()}</li>
+                            <li>Plate Quantity: {quotes.quantity}</li>
+                            <li>Total Cost: ${quotes.totalCost.toFixed(2)}</li>
+                            <li>Revenue: ${quotes.revenue.toFixed(2)}</li>
+                            <li>Profit: ${quotes.profit.toFixed(2)}</li>
+                            <li>Profit per Plate: ${(quotes.profit/quotes.quantity).toFixed(2)}</li>
+                        </ul>
+                    </div>
+                )}
+            </div>
+            <div className="mt-6">
+                <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleClearAllQuotes}>Clear All Quotes</button>
+            </div>
         </div>
-        <div className="mt-6">
-            <h2 className="text-2xl font-bold">Order Summary</h2>
-            <ul className="list-disc ml-6 space-y-1">
-                <li>Revenue: ${revenue.toFixed(2)}</li>
-                <li>Food Cost Total: ${foodCostUsed.toFixed(2)}</li>
-                <li>Food Cost per Plate: {qtyNum > 0 ? `$${(foodCostUsed/qtyNum).toFixed(2)}` : "-"}</li>
-                <li>Profit per Plate: {qtyNum > 0 ? `$${(profit/qtyNum).toFixed(2)}` : "-"}</li>
-            </ul>
-        </div>
-        <div className="mt-6">
-            <h2 className="text-2xl font-bold">Extra Costs</h2>
-            <ul className="list-disc ml-6 space-y-1">
-                <li>Input Labor Hours: <input className="border rounded px-2 py-1 ml-2" type="number" value={laborHours} onChange={e => setLaborHours(e.target.value)}/></li>
-                <li>Input Value of my time ($/h): <input className="border rounded px-2 py-1 ml-2" type="number" value={laborRate} onChange={e => setLaborRate(e.target.value)}/></li>
-                <i>Used to estimate if the order is worth the time (not cash paid)</i>
-                <li>Input Packaging Cost: <input className="border rounded px-2 py-1 ml-2" type="number" value={packagingCost} onChange={e => setPackagingCost(e.target.value)}/></li>
-                <li>Input Miles Traveled: <input className="border rounded px-2 py-1 ml-2" type="number" value={miles} onChange={e => setMiles(e.target.value)}/></li>
-                <li>Input Rate per Mile Traveled: <input className="border rounded px-2 py-1 ml-2" type="number" value={ratePerMile} onChange={e => setRatePerMile(e.target.value)}/></li>
-                <li>Input Misc Cost: <input className="border rounded px-2 py-1 ml-2" type="number" value={miscCost} onChange={e => setMiscCost(e.target.value)}/></li>
-                <li>Input Delivery Cost: <input className="border rounded px-2 py-1 ml-2" type="number" value={deliveryCost} onChange={e => setDeliveryCost(e.target.value)}/></li>
-            </ul>
-        </div>
-        <div className="mt-6">
-            <h2 className="text-2xl font-bold">Totals</h2>
-            <ul className="list-disc ml-6 space-y-1">
-                <li>Total Cost: ${totalCost.toFixed(2)}</li>
-                <li>Profit: ${profit.toFixed(2)}</li>
-                <li>Suggested Price Per Unit: ${suggestedPricePerUnit.toFixed(2)}</li>
-            </ul>
-        </div>
-        <div className="mt-6">
-            <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleSaveQuote}><b>Save Quote</b></button>
-            <h1 className="mt-3 text-2xl font-bold">Recently Saved Quotes</h1>
-            {savedQuotes.map(quotes =>
-                <div className="mt-6" key={quotes.id}>
-                    <h3 className="font-bold">{quotes.dishName}{' '}
-                        <button className="mt-4 border rounded px-2 py-1 font-semibold" onClick={() => {handleLoadQuote(quotes)}}>Load</button>
-                        <button className="mt-4 border rounded px-2 py-1 font-semibold" onClick={() => {handleDeleteQuote(quotes.id)}}>Delete</button>
-                    </h3>
-                    <ul className="list-disc ml-6 space-y-1">
-                        <li>Saved Date: {new Date(quotes.savedAt).toLocaleString()}</li>
-                        <li>Plate Quantity: {quotes.quantity}</li>
-                        <li>Total Cost: ${quotes.totalCost.toFixed(2)}</li>
-                        <li>Revenue: ${quotes.revenue.toFixed(2)}</li>
-                        <li>Profit: ${quotes.profit.toFixed(2)}</li>
-                        <li>Profit per Plate: ${(quotes.profit/quotes.quantity).toFixed(2)}</li>
-                    </ul>
-                </div>
-            )}
-        </div>
-        <div className="mt-6">
-            <button className="mt-4 border rounded px-3 py-2 font-semibold" onClick={handleClearAllQuotes}>Clear All Quotes</button>
-        </div>
+        
     </>
     );
 };
