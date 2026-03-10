@@ -13,9 +13,9 @@ export default function Dishes(){
     const [dishes, setDishes] = useState<Dish[]>([]);
     const [loaded, setLoaded] = useState(false);
 
-    const [editingDishId, setEditingDishId] = useState("" || null);
+    const [editingDishId, setEditingDishId] = useState<string | null>(null);
     const [editingDishName, setEditingDishName] = useState("");
-    const [editingUnitType, setEditingUnitType] = useState<UnitType>();
+    const [editingUnitType, setEditingUnitType] = useState<UnitType>("plate");
     const [editingBaselineCost, setEditingBaselineCost] = useState("");
 
     useEffect(() => {
@@ -73,7 +73,8 @@ export default function Dishes(){
     }
 
     function handleEditDish(id: string){
-        const dish = dishes.filter(d => d.id == id).find(d => d.id == id) as Dish; //or just do [0]?
+        const dish = dishes.find(d => d.id == id) as Dish; 
+        
         setEditingDishId(dish.id);
         setEditingDishName(dish.dishName);
         setEditingUnitType(dish.unitType);
@@ -81,7 +82,11 @@ export default function Dishes(){
     }
 
     function handleSaveDish(id: string){
-
+        if(editingDishName.trim() != "" && Number(editingBaselineCost) > 0){
+            const updatedDish = {id: id, dishName: editingDishName, unitType: editingUnitType, baselineCostPerUnit: Number(editingBaselineCost)} as Dish;
+            setDishes(prev => prev.map(d => d.id === id ? updatedDish : d));
+            setEditingDishId(null);
+        }
     }
 
     function handleCancelDishEdit(){
@@ -93,19 +98,21 @@ export default function Dishes(){
         return(
             
             <tr className="hover:bg-gray-800/40">
-                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <input className='px-2 py-1 text-sm w-32'></input> : dish.dishName}</td>
-                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <select  className='px-2 py-1 text-sm w-24'></select> : dish.unitType}</td>
-                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <input className='px-2 py-1 text-sm w-24' type='number'></input> : dish.baselineCostPerUnit}</td>
+                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <input className='px-2 py-1 text-sm w-32' autoFocus value={editingDishName} onChange={e => setEditingDishName(e.target.value)}></input> : dish.dishName}</td>
+                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <select  className='px-2 py-1 text-sm w-24' autoFocus value={editingUnitType} onChange={e => setEditingUnitType(e.target.value as UnitType)}>
+                    <option value="tray">Tray</option>
+                    <option value="plate">Plate</option></select> : dish.unitType}</td>
+                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <input className='px-2 py-1 text-sm w-24' type='number' autoFocus value={editingBaselineCost} onChange={e => setEditingBaselineCost(e.target.value)}></input> : dish.baselineCostPerUnit}</td>
                 <td className='px-3 py-2 border-b border-white-700'>
                     {isEditing ? 
-                    <>
-                        <button className="border rounded px-3 py-2 font-semibold" onClick={() => { handleSaveDish(dish.id); } }>Save</button>
-                        <button className="border rounded px-3 py-2 font-semibold" onClick={handleCancelDishEdit}>Cancel</button>
-                    </> : 
-                    <>
-                        <button className="border rounded px-3 py-2 font-semibold" onClick={() => { handleEditDish(dish.id); } }>Edit</button>
-                        <button className="border rounded px-3 py-2 font-semibold" onClick={() => { handleDeleteDish(dish.id); } }>Delete</button>
-                    </>
+                        <>
+                            <button type='button' className="border rounded px-3 py-2 font-semibold" onClick={() => { handleSaveDish(dish.id); } }>Save</button>
+                            <button type='button' className="border rounded px-3 py-2 font-semibold" onClick={handleCancelDishEdit}>Cancel</button>
+                        </> : 
+                        <>
+                            <button type='button' className="border rounded px-3 py-2 font-semibold" onClick={() => { handleEditDish(dish.id); } }>Edit</button>
+                            <button type='button' className="border rounded px-3 py-2 font-semibold" onClick={() => { handleDeleteDish(dish.id); } }>Delete</button>
+                        </>
                     }
                 </td>
             </tr>
