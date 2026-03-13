@@ -130,6 +130,8 @@ export default function Quote(){
         };
     }
 
+    console.log(process.env.NEXT_PUBLIC_SUPABASE_URL);
+
     return (
     <>
         <div className="ml-2">
