@@ -9,7 +9,7 @@ export default function Dishes(){
     
     const [dishName, setDishName] = useState("");
     const [unitType, setUnitType] = useState<UnitType>("plate");
-    const [baselineCostPerUnit, setbaselineCostPerUnit] = useState("");
+    const [baselineCostPerUnit, setBaselineCostPerUnit] = useState("");
     const [dishes, setDishes] = useState<Dish[]>([]);
     const [loaded, setLoaded] = useState(false);
 
@@ -19,23 +19,31 @@ export default function Dishes(){
     const [editingBaselineCost, setEditingBaselineCost] = useState("");
 
     useEffect(() => {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if(raw){
-            const parsed = JSON.parse(raw);
-            const clean = parsed.filter(d => d != null);
-            const migrated = clean.map(d => {
-                if(!d.id){
-                   d.id = crypto.randomUUID(); 
+        // Create an async function to use await
+        async function fetchDishes(){
+
+            try{
+                // Make GET API call
+                const response = await fetch("/api/dishes");
+                
+                // Check if response is ok
+                if(!response.ok){
+                    throw new Error(`Failed to fetch dishes: ${response.status} ${response.statusText}`);
                 }
-                return d;
-            }) as Dish[];
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
-            console.log("loaded dishes", migrated);
-            console.log("dish ids:", migrated.map(d => d.id))
-            setDishes(migrated);
-            
+
+                // Parse the response
+                const data: Dish[] = await response.json();
+
+                // Set the dishes state with data
+                setDishes(data);
+                
+                setLoaded(true);
+            } catch (err){
+                console.log(err);
+                setLoaded(true);
+            }
         }
-        setLoaded(true);
+        fetchDishes();
     }, []);
     
     useEffect(() => {
@@ -53,7 +61,7 @@ export default function Dishes(){
             const newDish = {id: crypto.randomUUID(), dishName: dishName.trim(), unitType: unitType, baselineCostPerUnit: costNum};
             setDishes(prev => [...prev, newDish]);
             setDishName("");
-            setbaselineCostPerUnit("");
+            setBaselineCostPerUnit("");
         }
     }
 
@@ -67,13 +75,13 @@ export default function Dishes(){
     function handleDeleteDish(id: string){
         setDishes(prev => {
             const filtered = prev.filter(d => d.id !== id);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
             return filtered;
         })
     }
 
     function handleEditDish(id: string){
-        const dish = dishes.find(d => d.id == id) as Dish; 
+        const dish = dishes.find(d => d.id == id) as Dish;
+        if(!dish) return;
         setEditingDishId(dish.id);
         setEditingDishName(dish.dishName);
         setEditingUnitType(dish.unitType);
@@ -153,7 +161,7 @@ export default function Dishes(){
             <div className="mt-4">
                 <ul className='ml-3 space-y-4'>
                     <li className="flex items-center gap-2">Input Dish Name: <input className="border rounded px-2 py-1 ml-1" value={dishName} onChange={e => setDishName(e.target.value)}/></li>
-                    <li className="flex items-center gap-2">Input Baseline Cost: <input className="border rounded px-2 py-1 ml-1" type="number" value={baselineCostPerUnit} onChange={e => setbaselineCostPerUnit(e.target.value)}/></li>
+                    <li className="flex items-center gap-2">Input Baseline Cost: <input className="border rounded px-2 py-1 ml-1" type="number" value={baselineCostPerUnit} onChange={e => setBaselineCostPerUnit(e.target.value)}/></li>
                     <li className="flex items-center gap-2">
                         <label>Select Unit Option:
                             <select className="border rounded px-2 py-1 ml-1" name="selectedUnit" value={unitType} onChange={e => setUnitType(e.target.value as UnitType)}>
