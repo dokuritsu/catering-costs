@@ -3,13 +3,20 @@ import { supabase } from "@/lib/supabase";
 import { Dish } from "@/lib/types";
 
 export async function GET() {
-    const { data, error } = await supabase.from("dishes").select("*").order("created_at", { ascending: false});
+    const { data, error } = await supabase.from("dishes").select("*").order("created_at", {ascending: false});
 
     if(error){
         return NextResponse.json({error: error.message}, {status: 500});
     }
 
-    return NextResponse.json(data, {status: 200});
+    const dishes: Dish[] = data.map(row => ({
+        id: row.id, 
+        dishName: row.dish_name,
+        unitType: row.unit_type,
+        baselineCostPerUnit: row.baseline_cost_per_unit
+    }))
+
+    return NextResponse.json(dishes, {status: 200});
 }
 
 export async function POST(request: Request){
