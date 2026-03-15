@@ -11,7 +11,6 @@ export default function Dishes(){
     const [unitType, setUnitType] = useState<UnitType>("plate");
     const [baselineCostPerUnit, setBaselineCostPerUnit] = useState("");
     const [dishes, setDishes] = useState<Dish[]>([]);
-    const [loaded, setLoaded] = useState(false);
 
     const [editingDishId, setEditingDishId] = useState<string | null>(null);
     const [editingDishName, setEditingDishName] = useState("");
@@ -19,50 +18,46 @@ export default function Dishes(){
     const [editingBaselineCost, setEditingBaselineCost] = useState("");
 
     useEffect(() => {
-        // Create an async function to use await
         async function fetchDishes(){
-
             try{
-                // Make GET API call
                 const response = await fetch("/api/dishes");
-                
-                // Check if response is ok
                 if(!response.ok){
                     throw new Error(`Failed to fetch dishes: ${response.status} ${response.statusText}`);
                 }
 
-                // Parse the response
                 const data: Dish[] = await response.json();
-
-                // Set the dishes state with data
                 setDishes(data);
-                
-                setLoaded(true);
             } catch (err){
                 console.log(err);
-                setLoaded(true);
             }
         }
         fetchDishes();
     }, []);
-    
-    useEffect(() => {
-        if(!loaded){
-            return;
-        }
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(dishes))
-    }, [dishes, loaded]);
 
-    
-
-    function handleAddDish(){
+    async function handleAddDish(){
         const costNum = Number(baselineCostPerUnit);
-        if(costNum > 0 && dishName.trim() !== ""){
-            const newDish = {id: crypto.randomUUID(), dishName: dishName.trim(), unitType: unitType, baselineCostPerUnit: costNum};
-            setDishes(prev => [...prev, newDish]);
-            setDishName("");
-            setBaselineCostPerUnit("");
-        }
+        if(!dishName.trim() || isNaN(costNum) || costNum <= 0) return;
+        try{
+                const response = await fetch("/api/dishes", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({dishName: dishName.trim(), unitType: unitType, baselineCostPerUnit: costNum})
+                });
+
+                if(!response.ok){
+                    const errorData = await response.json().catch(() => response.text);
+                    throw new Error(`Status: ${response.status}. Message: ${JSON.stringify(errorData) || errorData}`);
+                }
+
+                const newDish: Dish = await response.json();
+                setDishes(prev => [...prev, newDish]);
+                setDishName("");
+                setBaselineCostPerUnit("");
+            } catch (err){
+                console.log(err);
+            }
     }
 
     function handleClearAllDishes(){
@@ -161,7 +156,7 @@ export default function Dishes(){
             <div className="mt-4">
                 <ul className='ml-3 space-y-4'>
                     <li className="flex items-center gap-2">Input Dish Name: <input className="border rounded px-2 py-1 ml-1" value={dishName} onChange={e => setDishName(e.target.value)}/></li>
-                    <li className="flex items-center gap-2">Input Baseline Cost: <input className="border rounded px-2 py-1 ml-1" type="number" value={baselineCostPerUnit} onChange={e => setBaselineCostPerUnit(e.target.value)}/></li>
+                    <li className="flex items-center gap-2">Input Baseline Cost: <input typeof="number" className="border rounded px-2 py-1 ml-1" type="number" value={baselineCostPerUnit} onChange={e => setBaselineCostPerUnit(e.target.value)}/></li>
                     <li className="flex items-center gap-2">
                         <label>Select Unit Option:
                             <select className="border rounded px-2 py-1 ml-1" name="selectedUnit" value={unitType} onChange={e => setUnitType(e.target.value as UnitType)}>

@@ -1,38 +1,51 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { Dish } from "@/lib/types";
+import { Dish, DishRow } from "@/lib/types";
 
 export async function GET() {
-    const { data, error } = await supabase.from("dishes").select("*").order("created_at", {ascending: false});
+    const { data, error } = await supabase
+        .from("dishes")
+        .select("*")
+        .order("created_at", {ascending: false});
 
     if(error){
         return NextResponse.json({error: error.message}, {status: 500});
     }
 
-    const dishes: Dish[] = data.map(row => ({
-        id: row.id, 
-        dishName: row.dish_name,
-        unitType: row.unit_type,
-        baselineCostPerUnit: row.baseline_cost_per_unit
-    }))
+    const rows = data ?? []
+    const dishes: Dish[] = rows.map(row => toDish(row));
 
-    return NextResponse.json(dishes, {status: 200});
+    return NextResponse.json(dishes);
 }
 
 export async function POST(request: Request){
-    const body = await request.json();
-    const {dishName, unitType, baselineCostPerUnit} = body;
+    const {dishName, unitType, baselineCostPerUnit} = await request.json();
 
-    if(!dishName || !unitType || baselineCostPerUnit <= 0){
+    if(typeof dishName !== "string" || (unitType !== "plate" || unitType !== "tray") || typeof baselineCostPerUnit !== "number" || !dishName || !unitType || baselineCostPerUnit <= 0){
         return NextResponse.json({error: "Bad request sent"}, {status: 400});
     }
 
-    const {data, error} = await supabase.from("dishes").insert([{dish_name: dishName, unit_type: unitType, baseline_cost_per_unit: baselineCostPerUnit}]);
+    const {data, error} = await supabase
+        .from("dishes")
+        .insert([{dish_name: dishName, unit_type: unitType, baseline_cost_per_unit: baselineCostPerUnit}])
+        .select()
+        .single();
         
-    if(error){
-        return NextResponse.json({error: error.message}, {status: 500});
+    if(error || !data){
+        return NextResponse.json({error: "Insert failed"}, {status: 500});
     }
+    
+    const row: DishRow = data ?? {};
+    return NextResponse.json(toDish(row), {status:201});
+}
 
-    return NextResponse.json(data, {status:201});
-
+// Transform db Dish type to frontend Dish type
+function toDish(row: DishRow): Dish{
+    const transformedDish: Dish = {
+        id: row.id,
+        dishName: row.dish_name,
+        unitType: row.unit_type,
+        baselineCostPerUnit: row.baseline_cost_per_unit
+    }
+    return transformedDish;
 }

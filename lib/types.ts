@@ -26,3 +26,10 @@ export type Quote = {
     revenue: number;
     profit: number;
 }
+
+export type DishRow = {
+    id: string,
+    dish_name: string,
+    unit_type: UnitType,
+    baseline_cost_per_unit: number
+}
