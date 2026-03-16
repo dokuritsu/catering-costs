@@ -6,7 +6,7 @@ import type { Dish, UnitType } from "@/lib/types";
 const STORAGE_KEY = "catering_dishes_v3";
 
 export default function Dishes(){
-    
+    // Create states
     const [dishName, setDishName] = useState("");
     const [unitType, setUnitType] = useState<UnitType>("plate");
     const [baselineCostPerUnit, setBaselineCostPerUnit] = useState("");
@@ -17,6 +17,7 @@ export default function Dishes(){
     const [editingUnitType, setEditingUnitType] = useState<UnitType>("plate");
     const [editingBaselineCost, setEditingBaselineCost] = useState("");
 
+    // useEffect for calling GET /api/dishes to retrieve all dishes and set them
     useEffect(() => {
         async function fetchDishes(){
             try{
@@ -34,6 +35,7 @@ export default function Dishes(){
         fetchDishes();
     }, []);
 
+    // Function to add dish -> call POST /api/dishes with dishName, unitType & baselineCostPerUnit
     async function handleAddDish(){
         const costNum = Number(baselineCostPerUnit);
         if(!dishName.trim() || isNaN(costNum) || costNum <= 0) return;
@@ -156,7 +158,7 @@ export default function Dishes(){
             <div className="mt-4">
                 <ul className='ml-3 space-y-4'>
                     <li className="flex items-center gap-2">Input Dish Name: <input className="border rounded px-2 py-1 ml-1" value={dishName} onChange={e => setDishName(e.target.value)}/></li>
-                    <li className="flex items-center gap-2">Input Baseline Cost: <input typeof="number" className="border rounded px-2 py-1 ml-1" type="number" value={baselineCostPerUnit} onChange={e => setBaselineCostPerUnit(e.target.value)}/></li>
+                    <li className="flex items-center gap-2">Input Baseline Cost: <input className="border rounded px-2 py-1 ml-1" type="number" value={baselineCostPerUnit} onChange={e => setBaselineCostPerUnit(e.target.value)}/></li>
                     <li className="flex items-center gap-2">
                         <label>Select Unit Option:
                             <select className="border rounded px-2 py-1 ml-1" name="selectedUnit" value={unitType} onChange={e => setUnitType(e.target.value as UnitType)}>
