@@ -1,4 +1,7 @@
-export type UnitType = "plate" | "tray";
+import { Database } from "./database.types";
+
+export const UNIT_TYPES = ["plate", "tray"] as const;
+export type UnitType = typeof UNIT_TYPES[number];
 export type Dish = {
     id: string,
     dishName: string;
@@ -27,9 +30,4 @@ export type Quote = {
     profit: number;
 }
 
-export type DishRow = {
-    id: string,
-    dish_name: string,
-    unit_type: UnitType,
-    baseline_cost_per_unit: number
-}
+export type DishRow = Database["public"]["Tables"]["dishes"]["Row"]
