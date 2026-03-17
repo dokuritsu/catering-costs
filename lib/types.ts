@@ -9,7 +9,7 @@ export type Dish = {
     baselineCostPerUnit: number;
 }
 
-export type CreateDishRequest{
+export type CreateDishRequest = {
     dishName: string,
     unitType: string,
     baselineCostPerUnit: number

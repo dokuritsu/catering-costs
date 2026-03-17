@@ -69,11 +69,27 @@ export default function Dishes(){
         };
     }
 
-    function handleDeleteDish(id: string){
-        setDishes(prev => {
-            const filtered = prev.filter(d => d.id !== id);
-            return filtered;
-        })
+    async function handleDeleteDish(id: string){
+        // Call DELETE with id to remove dish in the backend
+        try{
+            const response = await fetch(`/api/dishes/${id}`, {
+                method: "DELETE",
+            });
+
+            // Check to see if response was not successful & throw error w/ reason
+            if(!response.ok){
+                const errorData = await response.json().catch(() => response.text);
+                throw new Error (`Status: ${response.status}. Message: ${JSON.stringify(errorData) || errorData}`);
+            }
+
+            // Call setDishes to notify frontend of deletion
+            setDishes(prev => {
+                const filtered = prev.filter(d => d.id !== id);
+                return filtered;
+            });
+        } catch (err){
+            console.log(err);
+        }
     }
 
     function handleEditDish(id: string){
