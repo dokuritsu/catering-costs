@@ -26,3 +26,11 @@ export async function DELETE(request: Request, context: {params: Promise<{id: st
 
     return new NextResponse(null, {status: 204});
 }
+
+export async function PATCH(request: Request, context: {params: Promise<{id: string}>}){
+    const {id} = await context.params;
+
+    if(!id || id.trim().length === 0){
+        return NextResponse.json({error: "id is not valid"}, {status: 400});
+    }
+}

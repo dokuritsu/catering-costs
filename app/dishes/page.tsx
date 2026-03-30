@@ -40,26 +40,26 @@ export default function Dishes(){
         const costNum = Number(baselineCostPerUnit);
         if(!dishName.trim() || isNaN(costNum) || costNum <= 0) return;
         try{
-                const response = await fetch("/api/dishes", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({dishName: dishName.trim(), unitType: unitType, baselineCostPerUnit: costNum})
-                });
+            const response = await fetch("/api/dishes", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({dishName: dishName.trim(), unitType: unitType, baselineCostPerUnit: costNum})
+            });
 
-                if(!response.ok){
-                    const errorData = await response.json().catch(() => response.text);
-                    throw new Error(`Status: ${response.status}. Message: ${JSON.stringify(errorData) || errorData}`);
-                }
-
-                const newDish: Dish = await response.json();
-                setDishes(prev => [...prev, newDish]);
-                setDishName("");
-                setBaselineCostPerUnit("");
-            } catch (err){
-                console.log(err);
+            if(!response.ok){
+                const errorData = await response.json().catch(() => response.text);
+                throw new Error(`Status: ${response.status}. Message: ${JSON.stringify(errorData) || errorData}`);
             }
+
+            const newDish: Dish = await response.json();
+            setDishes(prev => [...prev, newDish]);
+            setDishName("");
+            setBaselineCostPerUnit("");
+        } catch (err){
+            console.log(err);
+        }
     }
 
     function handleClearAllDishes(){
@@ -101,11 +101,27 @@ export default function Dishes(){
         setEditingBaselineCost(String(dish.baselineCostPerUnit));
     }
 
-    function handleSaveDish(id: string){
+    async function handleSaveDish(id: string){
         if(editingDishName.trim() != "" && Number(editingBaselineCost) > 0){
-            const updatedDish = {id: id, dishName: editingDishName, unitType: editingUnitType, baselineCostPerUnit: Number(editingBaselineCost)} as Dish;
-            setDishes(prev => prev.map(d => d.id === id ? updatedDish : d));
-            setEditingDishId(null);
+            const updatedDish = {dishName: editingDishName, unitType: editingUnitType, baselineCostPerUnit: Number(editingBaselineCost)};
+            try{
+                const response = await fetch(`/api/dishes/${id}`, {
+                    method: "PATCH",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(updatedDish)
+                });
+
+                if(!response.ok){
+                    const errorData = await response.json().catch(() => response.text);
+                    throw new Error(`Status: ${response.status}. Message: ${JSON.stringify(errorData) || errorData}`);
+                }
+
+                const savedDish: Dish = await response.json();
+                setDishes(prev => prev.map(d => d.id === id ? savedDish : d));
+                setEditingDishId(null);
+            } catch (err) {
+                console.log(err);
+            }
         }
     }
 
@@ -124,8 +140,8 @@ export default function Dishes(){
         return(
             
             <tr className="hover:bg-gray-800/40">
-                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <input className='px-2 py-1 text-sm w-32' autoFocus value={editingDishName} onChange={e => setEditingDishName(e.target.value)}></input> : dish.dishName}</td>
-                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <select  className='px-2 py-1 text-sm w-24' value={editingUnitType} onChange={e => setEditingUnitType(e.target.value as UnitType)}>
+                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <input className='px-2 py-1 text-sm w-56' autoFocus value={editingDishName} onChange={e => setEditingDishName(e.target.value)}></input> : dish.dishName}</td>
+                <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <select  className='px-2 py-1 text-sm w-32' value={editingUnitType} onChange={e => setEditingUnitType(e.target.value as UnitType)}>
                     <option value="tray">Tray</option>
                     <option value="plate">Plate</option></select> : dish.unitType}</td>
                 <td className='px-3 py-2 border-b border-white-700'>{isEditing ? <input className='px-2 py-1 text-sm w-24' type='number' value={editingBaselineCost} onChange={e => setEditingBaselineCost(e.target.value)}></input> : dish.baselineCostPerUnit}</td>
