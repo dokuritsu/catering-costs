@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { CreateDishRequest, Dish, DishRow, UNIT_TYPES } from "@/lib/types";
+import { CreateDishRequest, Dish, DishRow, Errors, UNIT_TYPES, UnitType } from "@/lib/types";
 
 export async function GET() {
     const { data, error } = await supabase
@@ -18,7 +18,7 @@ export async function GET() {
 
 export async function POST(request: Request){
     // Parse the request into a type (a boundary)
-    const body = (await request.json()) as CreateDishRequest;
+    const body = (await request.json());
     
     const parsedDish = parseCreateDishRequest(body);
     
@@ -52,42 +52,60 @@ function toDish(row: DishRow): Dish{
     };
 }
 
-function parseCreateDishRequest(body: CreateDishRequest): {valid: true, data: CreateDishRequest} | {valid: false, error: string}{
-    // Validate typeof dishName
-    if(typeof body.dishName != "string"){
-        return {valid: false, error: "dishName is not type string"};
-    }
-    
-    // Validate typeof unitType
-    if(typeof body.unitType != "string"){
-        return {valid: false, error: "unitType is not type string"};
+function parseCreateDishRequest(body: unknown): {valid: true, data: CreateDishRequest} | {valid: false, error: Errors | string}{
+
+    // Validate body is an object
+    if(body === null || typeof body !== "object" || Array.isArray(body)){
+        return {valid: false, error: "Invalid request body"}
     }
 
-    // Normalization of cost -> string to number
-    const cost = Number(body.baselineCostPerUnit);
-    const trimmedDishName = body.dishName.trim();
-    const normalizedUnitType = body.unitType.toLowerCase();
-
-    // Validate baselineCostPerUnit is a number
-    if(Number.isNaN(cost)){
-        return {valid: false, error: "baselineCostPerUnit is not valid number"}
+    const errors: Errors = {};
+    let cost = 0;
+    let trimmedDishName = "";
+    let normalizedUnitType = "";
+    if("dishName" in body){
+        if(typeof body.dishName != "string"){
+            errors.dishName = "dishName is not type string";
+        } else {
+            trimmedDishName = body.dishName.trim();
+            if(trimmedDishName.length === 0){
+                errors.dishName = "dishName must not be empty";
+            }
+        }
+    } else {
+        errors.dishName = "dishName is required";
     }
 
-    // Validate dishName is not empty
-    if(trimmedDishName.length === 0){
-        return {valid: false, error: "dishName must not be empty"};
+    if("unitType" in body){
+        if(typeof body.unitType != "string"){
+            errors.unitType = "unitType is not type string";
+        } else {
+            normalizedUnitType = body.unitType.toLowerCase();
+            if(!UNIT_TYPES.includes(normalizedUnitType as UnitType)){
+                errors.unitType = `unitType must be one of: ${UNIT_TYPES.join(", ")}`;
+            }
+        }
+    } else {
+        errors.unitType = "unitType is required";
     }
 
-    // Validate normalizedUnitType is part of UNITTYPES
-    if(!UNIT_TYPES.includes(normalizedUnitType)){
-        return {valid: false, error: `unitType must be one of: ${UNIT_TYPES.join(", ")}`};
+    if("baselineCostPerUnit" in body){
+        cost = Number(body.baselineCostPerUnit);
+        if(Number.isNaN(cost)){
+            errors.baselineCostPerUnit = "baselineCostPerUnit is not valid number"
+        } else {
+            if(cost <= 0){
+                errors.baselineCostPerUnit = "cost must be greater than 0";
+            }
+        }
+    } else {
+        errors.baselineCostPerUnit = "baselineCostPerUnit is required"
     }
 
-    // Validate cost is greater than 0
-    if(cost <= 0){
-        return {valid: false, error: "cost must be greater than 0"};
+    if(Object.keys(errors).length > 0){
+        return {valid: false, error: errors};
     }
 
-    const data = {dishName: trimmedDishName, unitType: normalizedUnitType, baselineCostPerUnit: cost};
+    const data = {dishName: trimmedDishName, unitType: normalizedUnitType as UnitType, baselineCostPerUnit: cost};
     return {valid: true, data};
 }

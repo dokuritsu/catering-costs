@@ -11,9 +11,13 @@ export type Dish = {
 
 export type CreateDishRequest = {
     dishName: string,
-    unitType: string,
+    unitType: UnitType,
     baselineCostPerUnit: number
 }
+
+export type Errors = {
+    [errorMsg in keyof CreateDishRequest]?: string;
+};
 
 export type Quote = {
     id: string;
