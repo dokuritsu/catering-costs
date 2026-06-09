@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
-import { Dish, DishRow } from "@/lib/types";
+import { Dish } from "@/lib/types";
 import { parseCreateDishRequest } from "@/lib/validators/dish";
+import { toClientDish } from "@/lib/mappers/dish";
 
 export async function GET() {
     const { data, error } = await supabase
@@ -13,7 +14,7 @@ export async function GET() {
         return NextResponse.json({error: error.message}, {status: 500});
     }
 
-    const dishes: Dish[] = data.map(row => toDish(row));
+    const dishes: Dish[] = data.map(row => toClientDish(row));
     return NextResponse.json(dishes);
 }
 
@@ -40,15 +41,5 @@ export async function POST(request: Request){
     }
     
     // Otherwise, return successful insertion and dish that was inserted after mapping db type to frontend type
-    return NextResponse.json(toDish(data), {status:201});
-}
-
-// Transform db Dish type to frontend Dish type
-function toDish(row: DishRow): Dish{
-    return {
-        id: row.id,
-        dishName: row.dish_name,
-        unitType: row.unit_type,
-        baselineCostPerUnit: row.baseline_cost_per_unit
-    };
+    return NextResponse.json(toClientDish(data), {status:201});
 }
