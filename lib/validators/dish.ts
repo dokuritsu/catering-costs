@@ -1,6 +1,6 @@
 import { Errors, CreateDishRequest, UnitType, UNIT_TYPES} from "@/lib/types";
 
-export function parseCreateDishRequest(body: unknown): {valid: true, data: CreateDishRequest} | {valid: false, error: Errors | string}{
+export function parseCreateDishRequest(body: unknown): {valid: true, data: CreateDishRequest} | {valid: false, error: Errors<CreateDishRequest> | string}{
 
     // Validate body is an object
     if(body === null || typeof body !== "object" || Array.isArray(body)){
@@ -58,7 +58,7 @@ export function parseCreateDishRequest(body: unknown): {valid: true, data: Creat
     return {valid: true, data};
 }
 
-export function parseUpdateDishRequest(body: unknown): {valid: true, data: Partial<CreateDishRequest>} | {valid: false, error: Errors | string} {
+export function parseUpdateDishRequest(body: unknown): {valid: true, data: Partial<CreateDishRequest>} | {valid: false, error: Errors<CreateDishRequest> | string} {
    
     if(body === null || typeof body !== "object" || Array.isArray(body)){
         return {valid: false, error: "Invalid request body"};
