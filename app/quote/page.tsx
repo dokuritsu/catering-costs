@@ -37,16 +37,31 @@ export default function Quote(){
     const suggestedPricePerUnit = qtyNum > 0 ? suggestedPrice/qtyNum : 0
     const profit = suggestedPrice - totalCost
 
-    // Load dishes from localStorage key
+    // useEffects to calling GET /api/dish to retrieve all dishes
     useEffect(() => {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if(raw){
-            const parsed = JSON.parse(raw) as Dish[];
-            setDishes(parsed);
-            if(parsed.length > 0){
-                setSelectedDishId(parsed[0].id);
+        async function fetchDishes(){
+            try{
+                // Fetch dishes from API route
+                const response = await fetch("/api/dishes");
+
+                // Check the response status and handle errors
+                if(!response.ok){
+                    throw new Error(`Failed to fetch dishes: ${response.status} ${response.statusText}`);
+                }
+
+                // Parse the JSON response
+                const data: Dish[] = await response.json();
+                setDishes(data);
+                
+                // Set the first dish as selected by default if available
+                if(data.length > 0){
+                    setSelectedDishId(data[0].id);
+                }
+            } catch (error) {
+                console.log(error);
             }
         }
+        fetchDishes();
     }, []);
 
     // Load saved quotes on page mount
@@ -141,7 +156,7 @@ export default function Quote(){
                     <li>Input Value of my time ($/h): <input className="border rounded px-2 py-1 ml-2" type="number" value={laborRate} onChange={e => setLaborRate(e.target.value)}/></li>
                     <i>Used to estimate if the order is worth the time (not cash paid)</i>
                     <li>Input Packaging Cost: <input className="border rounded px-2 py-1 ml-2" type="number" value={packagingCost} onChange={e => setPackagingCost(e.target.value)}/></li>
-                    <li>Input Miles Traveled: <input className="border rounded px-2 py-1 ml-2" type="number" value={miles} onChange={e => setMiles(e.target.value)}/></li>
+                    <li>Input Miles Traveled (Round Trip): <input className="border rounded px-2 py-1 ml-2" type="number" value={miles} onChange={e => setMiles(e.target.value)}/></li>
                     <li>Input Rate per Mile Traveled: <input className="border rounded px-2 py-1 ml-2" type="number" value={ratePerMile} onChange={e => setRatePerMile(e.target.value)}/></li>
                 </ul>
             </div>
