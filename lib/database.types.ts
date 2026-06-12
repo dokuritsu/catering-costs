@@ -40,64 +40,46 @@ export type Database = {
       }
       quotes: {
         Row: {
-          delivery_cost: number
-          dish_id: string
+          baseline_cost_snapshot: number
+          dish_id: string | null
           dish_name_snapshot: string
-          grocery_spend: number
           id: string
           labor_hours: number
           labor_rate: number
           margin_pct: number
           miles: number
-          misc_cost: number
           packaging_cost: number
-          price_per_unit: number
-          profit: number
           quantity: number
           rate_per_mile: number
-          revenue: number
           saved_at: string
-          total_cost: number
         }
         Insert: {
-          delivery_cost: number
-          dish_id: string
+          baseline_cost_snapshot: number
+          dish_id?: string | null
           dish_name_snapshot: string
-          grocery_spend: number
           id?: string
           labor_hours: number
-          labor_rate: number
-          margin_pct: number
+          labor_rate?: number
+          margin_pct?: number
           miles: number
-          misc_cost: number
-          packaging_cost: number
-          price_per_unit: number
-          profit: number
+          packaging_cost?: number
           quantity: number
-          rate_per_mile: number
-          revenue: number
+          rate_per_mile?: number
           saved_at?: string
-          total_cost: number
         }
         Update: {
-          delivery_cost?: number
-          dish_id?: string
+          baseline_cost_snapshot?: number
+          dish_id?: string | null
           dish_name_snapshot?: string
-          grocery_spend?: number
           id?: string
           labor_hours?: number
           labor_rate?: number
           margin_pct?: number
           miles?: number
-          misc_cost?: number
           packaging_cost?: number
-          price_per_unit?: number
-          profit?: number
           quantity?: number
           rate_per_mile?: number
-          revenue?: number
           saved_at?: string
-          total_cost?: number
         }
         Relationships: [
           {

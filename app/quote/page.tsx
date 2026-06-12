@@ -10,18 +10,13 @@ export default function Quote(){
     // State variables
     const [dishes, setDishes] = useState<Dish[]>([]);
     const [selectedDishId, setSelectedDishId] = useState("");
-    // const [selectedDishName, setSelectedDishName] = useState("");
     const [quantity, setQuantity] = useState("1");
-    const [laborHours, setLaborHours] = useState("0");
-    const [laborRate, setLaborRate] = useState("20");
-    const [packagingCost, setPackagingCost] = useState("0");
-    const [deliveryCost, setDeliveryCost] = useState("0");
-    const [miscCost, setMiscCost] = useState("0");
     const [marginPct, setMarginPct] = useState("30");
-    const [pricePerUnit, setPricePerUnit] = useState("0");
-    const [grocerySpend, setGrocerySpend] = useState("0");
-    const [miles, setMiles] = useState("10");
-    const [ratePerMile, setRatePerMile] = useState("0.65");
+    const [laborHours, setLaborHours] = useState("0");
+    const [laborRate, setLaborRate] = useState("18");
+    const [ratePerMile, setRatePerMile] = useState("0.67");
+    const [miles, setMiles] = useState("0");
+    const [packagingCost, setPackagingCost] = useState("1.25");
     const [savedQuotes, setSavedQuotes] = useState<Quote[]>([]);
 
     // Simplify
@@ -33,18 +28,14 @@ export default function Quote(){
     
     // Additional calculations
     const selectedDish = dishes.find(d => d.id === selectedDishId)
-    const estimatedDishCost = selectedDish ? selectedDish.baselineCostPerUnit * qtyNum : 0
-    const laborCost = Number(laborHours) * Number(laborRate)
-    const overheadCost = Number(packagingCost) + Number(deliveryCost) + Number(miscCost)
-    const actualFoodCost = Number(grocerySpend)
-    const foodCostUsed = actualFoodCost > 0 ? actualFoodCost : estimatedDishCost
-    const vehicleCost = Number(miles) * Number(ratePerMile)
-    const totalCost = laborCost + overheadCost + foodCostUsed + vehicleCost
+    const totalPackagingCost = Number(packagingCost) * Number(quantity);
+    const totalLaborCost = Number(laborHours) * Number(laborRate);
+    const totalDeliveryCost = Number(miles) * Number(ratePerMile);
+    const totalCost = selectedDish ? (selectedDish.baselineCostPerUnit * qtyNum) + totalPackagingCost + totalLaborCost + totalDeliveryCost : 0
     const margin = Number(marginPct) < 100 ? Number(marginPct) / 100 : 1
     const suggestedPrice = margin < 1 ? totalCost / (1-margin) : 0
     const suggestedPricePerUnit = qtyNum > 0 ? suggestedPrice/qtyNum : 0
-    const revenue = Number(pricePerUnit) * qtyNum
-    const profit = revenue - totalCost
+    const profit = suggestedPrice - totalCost
 
     // Load dishes from localStorage key
     useEffect(() => {
@@ -68,28 +59,23 @@ export default function Quote(){
     }, []);
 
     function handleSaveQuote(){
-        if(qtyNum > 0 && pricePerUnit.trim() !== ""){
+        const baselineCostSnapshot = selectedDish?.baselineCostPerUnit ?? 0;
+        if(qtyNum > 0 && baselineCostSnapshot > 0){
             const quoteId = crypto.randomUUID();
             // Create new Quote
             const newQuote = {
                 id: quoteId, 
-                dishId: selectedDishId,
+                dishId: selectedDishId ?? "",
                 savedAt: new Date().toISOString(), 
-                dishName: selectedDish?.dishName ?? "", 
-                quantity: qtyNum, 
+                dishNameSnapshot: selectedDish?.dishName ?? "", 
+                quantity: qtyNum,
+                marginPct: Number(marginPct), 
+                baselineCostSnapshot: baselineCostSnapshot,
                 laborHours: Number(laborHours),
                 laborRate: Number(laborRate),
-                packagingCost: Number(packagingCost),
-                deliveryCost: Number(deliveryCost),
-                miscCost: Number(miscCost),
-                marginPct: Number(marginPct), 
-                pricePerUnit: Number(pricePerUnit), 
-                grocerySpend: Number(grocerySpend), 
-                miles: Number(miles),
                 ratePerMile: Number(ratePerMile),
-                totalCost: Number(totalCost), 
-                revenue: Number(revenue), 
-                profit: Number(profit)
+                miles: Number(miles),
+                packagingCost: Number(packagingCost)
             } as Quote;
             // Append to savedQuotes
             setSavedQuotes(prev => { 
@@ -109,18 +95,14 @@ export default function Quote(){
     }
 
     function handleLoadQuote(quote: Quote){
-        setSelectedDishId(quote.dishId);
+        setSelectedDishId(quote.dishId ?? "");
         setQuantity(String(quote.quantity));
+        setMarginPct(String(quote.marginPct));
         setLaborHours(String(quote.laborHours));
         setLaborRate(String(quote.laborRate));
-        setPackagingCost(String(quote.packagingCost));
-        setDeliveryCost(String(quote.deliveryCost));
-        setMiscCost(String(quote.miscCost));
-        setMarginPct(String(quote.marginPct));
-        setPricePerUnit(String(quote.pricePerUnit));
-        setGrocerySpend(String(quote.grocerySpend));
-        setMiles(String(quote.miles));
         setRatePerMile(String(quote.ratePerMile));
+        setMiles(String(quote.miles));
+        setPackagingCost(String(quote.packagingCost));
     }
 
     function handleClearAllQuotes(){
@@ -148,19 +130,8 @@ export default function Quote(){
                         </label>
                     </li>
                     <li>Input Quantity of Dish: <input className="border rounded px-2 py-1 ml-2" type="number" value={quantity} onChange={e => setQuantity(e.target.value)}/></li>
-                    <li>Input Price per Plate: <input className="border rounded px-2 py-1 ml-2" type="number" value={pricePerUnit} onChange={e => setPricePerUnit(e.target.value)}/></li>
-                    <li>Input Grocery Spend for Entire Order: <input className="border rounded px-2 py-1 ml-2" type="number" value={grocerySpend} onChange={e => setGrocerySpend(e.target.value)}/></li>
                     <li>Input Target Profit Margin: <input className="border rounded px-2 py-1 ml-2" type="number" value={marginPct} onChange={e => setMarginPct(e.target.value)}/></li>
                     <i>30% margin means 30% of the price is profit</i>
-                </ul>
-            </div>
-            <div className="mt-6">
-                <h2 className="text-2xl font-bold">Order Summary</h2>
-                <ul className="list-disc ml-6 space-y-1">
-                    <li>Revenue: ${revenue.toFixed(2)}</li>
-                    <li>Food Cost Total: ${foodCostUsed.toFixed(2)}</li>
-                    <li>Food Cost per Plate: {qtyNum > 0 ? `$${(foodCostUsed/qtyNum).toFixed(2)}` : "-"}</li>
-                    <li>Profit per Plate: {qtyNum > 0 ? `$${(profit/qtyNum).toFixed(2)}` : "-"}</li>
                 </ul>
             </div>
             <div className="mt-6">
@@ -172,16 +143,16 @@ export default function Quote(){
                     <li>Input Packaging Cost: <input className="border rounded px-2 py-1 ml-2" type="number" value={packagingCost} onChange={e => setPackagingCost(e.target.value)}/></li>
                     <li>Input Miles Traveled: <input className="border rounded px-2 py-1 ml-2" type="number" value={miles} onChange={e => setMiles(e.target.value)}/></li>
                     <li>Input Rate per Mile Traveled: <input className="border rounded px-2 py-1 ml-2" type="number" value={ratePerMile} onChange={e => setRatePerMile(e.target.value)}/></li>
-                    <li>Input Misc Cost: <input className="border rounded px-2 py-1 ml-2" type="number" value={miscCost} onChange={e => setMiscCost(e.target.value)}/></li>
-                    <li>Input Delivery Cost: <input className="border rounded px-2 py-1 ml-2" type="number" value={deliveryCost} onChange={e => setDeliveryCost(e.target.value)}/></li>
                 </ul>
             </div>
-            <div className="mt-6">
-                <h2 className="text-2xl font-bold">Totals</h2>
+             <div className="mt-6">
+                <h2 className="text-2xl font-bold">Order Summary</h2>
                 <ul className="list-disc ml-6 space-y-1">
                     <li>Total Cost: ${totalCost.toFixed(2)}</li>
-                    <li>Profit: ${profit.toFixed(2)}</li>
+                    <li>Suggessted Price: ${suggestedPrice.toFixed(2)}</li>
                     <li>Suggested Price Per Unit: ${suggestedPricePerUnit.toFixed(2)}</li>
+                    <li>Profit: ${profit.toFixed(2)}</li>
+                    <li>Profit per Plate: {qtyNum > 0 ? `$${(profit/qtyNum).toFixed(2)}` : "-"}</li>
                 </ul>
             </div>
             <div className="mt-6">
@@ -189,17 +160,13 @@ export default function Quote(){
                 <h1 className="mt-3 text-2xl font-bold">Recently Saved Quotes</h1>
                 {savedQuotes.map(quotes =>
                     <div className="mt-6" key={quotes.id}>
-                        <h3 className="font-bold">{quotes.dishName}{' '}
+                        <h3 className="font-bold">{quotes.dishNameSnapshot}{' '}
                             <button className="mt-4 border rounded px-2 py-1 font-semibold" onClick={() => {handleLoadQuote(quotes)}}>Load</button>
                             <button className="mt-4 border rounded px-2 py-1 font-semibold" onClick={() => {handleDeleteQuote(quotes.id)}}>Delete</button>
                         </h3>
                         <ul className="list-disc ml-6 space-y-1">
                             <li>Saved Date: {new Date(quotes.savedAt).toLocaleString()}</li>
                             <li>Plate Quantity: {quotes.quantity}</li>
-                            <li>Total Cost: ${quotes.totalCost.toFixed(2)}</li>
-                            <li>Revenue: ${quotes.revenue.toFixed(2)}</li>
-                            <li>Profit: ${quotes.profit.toFixed(2)}</li>
-                            <li>Profit per Plate: ${(quotes.profit/quotes.quantity).toFixed(2)}</li>
                         </ul>
                     </div>
                 )}

@@ -9,6 +9,7 @@ export default function Dishes(){
     // Create states
     const [dishName, setDishName] = useState("");
     const [unitType, setUnitType] = useState<UnitType>("plate");
+    // TODO: rename to costPerUnit for clarity
     const [baselineCostPerUnit, setBaselineCostPerUnit] = useState("");
     const [dishes, setDishes] = useState<Dish[]>([]);
 

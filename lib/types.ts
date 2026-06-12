@@ -4,9 +4,9 @@ export const UNIT_TYPES = ["plate", "tray"] as const;
 export type UnitType = typeof UNIT_TYPES[number];
 export type Dish = {
     id: string,
-    dishName: string;
-    unitType: UnitType;
-    baselineCostPerUnit: number;
+    dishName: string,
+    unitType: UnitType,
+    baselineCostPerUnit: number
 }
 
 export type CreateDishRequest = {
@@ -20,24 +20,19 @@ export type Errors = {
 };
 
 export type Quote = {
-    id: string;
-    dishId: string,
-    savedAt: string;
-    dishName: string;
-    quantity: number;
+    id: string,
+    dishId: string | null, 
+    savedAt: string,
+    dishNameSnapshot: string,
+    quantity: number,
+    marginPct: number,
+    baselineCostSnapshot: number,
     laborHours: number,
     laborRate: number,
-    packagingCost: number,
-    deliveryCost: number,
-    miscCost: number,
-    marginPct: number;
-    pricePerUnit: number;
-    grocerySpend: number;
-    miles: number,
     ratePerMile: number,
-    totalCost: number;
-    revenue: number;
-    profit: number;
+    miles: number,
+    packagingCost: number
 }
 
 export type DishRow = Database["public"]["Tables"]["dishes"]["Row"]
+export type QuoteRow = Database["public"]["Tables"]["quotes"]["Row"]
