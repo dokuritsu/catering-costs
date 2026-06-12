@@ -2,6 +2,7 @@ import { Database } from "./database.types";
 
 export const UNIT_TYPES = ["plate", "tray"] as const;
 export type UnitType = typeof UNIT_TYPES[number];
+
 export type Dish = {
     id: string,
     dishName: string,
@@ -15,8 +16,8 @@ export type CreateDishRequest = {
     baselineCostPerUnit: number
 }
 
-export type Errors = {
-    [errorMsg in keyof CreateDishRequest]?: string;
+export type Errors<T> = {
+    [K in keyof T]?: string;
 };
 
 export type Quote = {
@@ -27,6 +28,17 @@ export type Quote = {
     quantity: number,
     marginPct: number,
     baselineCostSnapshot: number,
+    laborHours: number,
+    laborRate: number,
+    ratePerMile: number,
+    miles: number,
+    packagingCost: number
+}
+
+export type CreateQuoteRequest = {
+    dishId: string,
+    quantity: number,
+    marginPct: number,
     laborHours: number,
     laborRate: number,
     ratePerMile: number,

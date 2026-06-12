@@ -7,7 +7,7 @@ export function parseCreateDishRequest(body: unknown): {valid: true, data: Creat
         return {valid: false, error: "Invalid request body"};
     }
 
-    const errors: Errors = {};
+    const errors: Errors<CreateDishRequest> = {};
     let trimmedDishName = "";
     let normalizedUnitType = "";
     let cost = 0;
@@ -65,7 +65,7 @@ export function parseUpdateDishRequest(body: unknown): {valid: true, data: Parti
     }
 
     const updates: Partial<CreateDishRequest> = {}
-    const errors: Errors = {};
+    const errors: Errors<CreateDishRequest> = {};
     if("dishName" in body){
         if(typeof body.dishName != "string"){
             errors.dishName = "dishName is not type string";
