@@ -3,9 +3,6 @@
 import { useState, useEffect} from "react";
 import type {Dish, Quote} from "@/lib/types";
 
-const STORAGE_KEY = "catering_dishes_v3";
-const QUOTES_KEY = "catering_quotes_v1";
-
 export default function Quote(){
     // State variables
     const [dishes, setDishes] = useState<Dish[]>([]);
@@ -66,53 +63,83 @@ export default function Quote(){
 
     // Load saved quotes on page mount
     useEffect(() => {
-        const raw = localStorage.getItem(QUOTES_KEY);
-        if(raw){
-            const parse = JSON.parse(raw) as Quote[];
-            setSavedQuotes(parse);
+        async function loadQuotes(){
+            try{
+                const response = await fetch("/api/quotes");
+
+                // Check the response status
+                if(!response.ok){
+                    throw new Error (`Failed to fetch quotes: ${response.status} ${response.statusText}`);
+                }
+                
+                // If successful, parse the JSON response and set to state
+                const data: Quote[] = await response.json();
+                setSavedQuotes(data);
+            } catch (error) {
+                console.log(error);
+            }
         }
+        loadQuotes();
     }, []);
 
-    function handleSaveQuote(){
-        const baselineCostSnapshot = selectedDish?.baselineCostPerUnit ?? 0;
-        if(qtyNum > 0 && baselineCostSnapshot > 0){
-            const quoteId = crypto.randomUUID();
-            // Create new Quote
-            const newQuote = {
-                id: quoteId, 
-                dishId: selectedDishId ?? "",
-                savedAt: new Date().toISOString(), 
-                dishNameSnapshot: selectedDish?.dishName ?? "", 
-                quantity: qtyNum,
-                marginPct: Number(marginPct), 
-                baselineCostSnapshot: baselineCostSnapshot,
-                laborHours: Number(laborHours),
-                laborRate: Number(laborRate),
-                ratePerMile: Number(ratePerMile),
-                miles: Number(miles),
-                packagingCost: Number(packagingCost)
-            } as Quote;
-            // Append to savedQuotes
-            setSavedQuotes(prev => { 
-                const updated = [newQuote, ...prev];
-                localStorage.setItem(QUOTES_KEY, JSON.stringify(updated)); 
-                return updated; 
-            })
+    async function handleSaveQuote(){
+        if(qtyNum > 0){
+            try{
+                const response = await fetch("/api/quotes", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        dishId: selectedDishId ?? "",
+                        quantity: qtyNum,
+                        marginPct: Number(marginPct)/100,
+                        laborHours: Number(laborHours),
+                        laborRate: Number(laborRate),
+                        ratePerMile: Number(ratePerMile),
+                        miles: Number(miles),
+                        packagingCost: Number(packagingCost)
+                    })
+                });
+
+                if(!response.ok){
+                    const errorData = await response.json().catch(() => response.text);
+                    throw new Error(`Status: ${response.status}. Message: ${JSON.stringify(errorData) || errorData}`);
+                }
+
+                // If successful, parse the JSON response and add the new quote to state
+                const newQuote: Quote = await response.json();
+                setSavedQuotes(prev => [newQuote, ...prev]);
+
+
+            } catch (error){
+                console.log(error);
+            }
         }
     }
 
-    function handleDeleteQuote(id: string){
-        setSavedQuotes(prev => {
-            const filtered = prev.filter(q => q.id !== id);
-            localStorage.setItem(QUOTES_KEY, JSON.stringify(filtered));
-            return filtered;
-        })
+    async function handleDeleteQuote(id: string){
+        try{
+            const response = await fetch(`/api/quotes/${id}`, {
+                method: "DELETE"
+            });
+
+            if(!response.ok){
+                const errorData = await response.json().catch(() => response.text);
+                throw new Error(`Status: ${response.status}. Message: ${JSON.stringify(errorData) || errorData}`);
+            }
+
+            // If successful, remove the quote from state
+            setSavedQuotes(prev => prev.filter(q => q.id !== id));
+        } catch (error){
+            console.log(error);
+        }
     }
 
     function handleLoadQuote(quote: Quote){
         setSelectedDishId(quote.dishId ?? "");
         setQuantity(String(quote.quantity));
-        setMarginPct(String(quote.marginPct));
+        setMarginPct(String(quote.marginPct*100));
         setLaborHours(String(quote.laborHours));
         setLaborRate(String(quote.laborRate));
         setRatePerMile(String(quote.ratePerMile));
@@ -120,10 +147,13 @@ export default function Quote(){
         setPackagingCost(String(quote.packagingCost));
     }
 
-    function handleClearAllQuotes(){
+    async function handleClearAllQuotes(){
         if(confirm("Are you sure you want to remove all quotes?")){
-           setSavedQuotes([]); 
-           localStorage.removeItem(QUOTES_KEY); 
+           try{
+                const response = await Promise.all(savedQuotes.map(q => handleDeleteQuote(q.id)));
+           } catch (error){
+                console.log(error);
+           }
         };
     }
 
@@ -180,8 +210,11 @@ export default function Quote(){
                             <button className="mt-4 border rounded px-2 py-1 font-semibold" onClick={() => {handleDeleteQuote(quotes.id)}}>Delete</button>
                         </h3>
                         <ul className="list-disc ml-6 space-y-1">
+                            <li>Order Profit: ${profit.toFixed(2)}</li>
+                            <li>Unit Type: {selectedDish?.unitType}</li>
+                            <li>Unit Quantity: {quotes.quantity}</li>
                             <li>Saved Date: {new Date(quotes.savedAt).toLocaleString()}</li>
-                            <li>Plate Quantity: {quotes.quantity}</li>
+                            
                         </ul>
                     </div>
                 )}
