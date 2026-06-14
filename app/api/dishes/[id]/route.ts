@@ -18,7 +18,7 @@ export async function DELETE(request: Request, context: {params: Promise<{id: st
         .select();
 
     // if error exists or if data is null, return error
-    if(error ){
+    if(error){
         return NextResponse.json({error: error.message}, {status: 500});
     }
 
